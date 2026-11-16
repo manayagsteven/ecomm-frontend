@@ -8,7 +8,7 @@
     <div class="sk-container d-flex align-center ga-2 h-100">
       <!-- Logo -->
       <NuxtLink to="/" class="sk-logo sk-focus" aria-label="ShopKart home">
-        <span class="sk-logo__mark"><v-icon icon="mdi-cart-variant" size="20" /></span>
+        <img src="/logo.png" alt="" width="38" height="38" class="sk-logo__mark">
         <span class="sk-logo__word">Shop<em>Kart</em></span>
       </NuxtLink>
 
@@ -138,13 +138,10 @@ function isActive(link: { to: string; exact?: boolean }) {
 }
 
 .sk-logo__mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  background: var(--sk-teal);
-  color: var(--sk-meadow);
+  width: 38px;
+  height: 38px;
+  display: block;
+  flex-shrink: 0;
 }
 
 .sk-logo__word {
