@@ -104,8 +104,8 @@ type NavLink = { label: string; to: string; icon: string; section?: string; mobi
 
 const links: NavLink[] = [
   { label: 'Home', to: '/', icon: 'mdi-home-outline', section: 'home' },
-  { label: 'Shop All', to: '/#shop', icon: 'mdi-storefront-outline', section: 'shop' },
   { label: 'Departments', to: '/#categories', icon: 'mdi-shape-outline', section: 'categories' },
+  { label: 'Shop All', to: '/#shop', icon: 'mdi-storefront-outline', section: 'shop' },
   { label: 'Our Promise', to: '/#why', icon: 'mdi-star-outline', section: 'why' },
   { label: 'Saved Items', to: '/wishlist', icon: 'mdi-heart-outline', mobileOnly: true },
 ]
