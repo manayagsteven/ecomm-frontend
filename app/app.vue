@@ -44,10 +44,10 @@ const toastIcon = computed(() => {
 </script>
 
 <style>
-/* Solid snackbar surfaces: teal for success/info, deep red for errors */
+/* Solid snackbar surfaces: charcoal for success/info, deep red for errors */
 .sk-toast .v-snackbar__wrapper {
-  background: var(--sk-teal) !important;
-  color: var(--sk-on-teal) !important;
+  background: var(--sk-secondary) !important;
+  color: var(--sk-on-secondary) !important;
   border-radius: var(--sk-r-md) !important;
   box-shadow: var(--sk-shadow-md) !important;
   font-weight: 600;
@@ -55,7 +55,7 @@ const toastIcon = computed(() => {
 
 .sk-toast--success .v-icon,
 .sk-toast--info .v-icon {
-  color: var(--sk-meadow);
+  color: var(--sk-primary);
 }
 
 .sk-toast--error .v-snackbar__wrapper {

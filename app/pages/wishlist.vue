@@ -3,11 +3,11 @@
   <div class="sk-container page">
     <header class="head">
       <div>
-        <span class="sk-eyebrow">Saved for later</span>
-        <h1 class="sk-h1 mt-3">Your <em>wishlist</em></h1>
+        <span class="sk-eyebrow">Your favorites</span>
+        <h1 class="sk-h1 mt-3">Saved <em>items</em></h1>
       </div>
       <p v-if="ids.length" class="sk-muted head__note sk-num">
-        {{ ids.length }} saved {{ ids.length === 1 ? 'product' : 'products' }}
+        {{ ids.length }} {{ ids.length === 1 ? 'item' : 'items' }} saved
       </p>
     </header>
 
@@ -19,18 +19,18 @@
     <!-- Error -->
     <div v-else-if="error" class="state sk-surface">
       <v-icon icon="mdi-cloud-alert-outline" size="40" color="error" />
-      <h2 class="sk-h3 mt-3">Couldn't load your wishlist</h2>
+      <h2 class="sk-h3 mt-3">We couldn't load your saved items</h2>
       <p class="sk-muted mt-2">{{ error }}</p>
-      <v-btn color="primary" class="mt-5" prepend-icon="mdi-refresh" @click="loadProducts">Try again</v-btn>
+      <v-btn color="primary" class="mt-5" prepend-icon="mdi-refresh" @click="loadProducts">Reload</v-btn>
     </div>
 
     <!-- Empty -->
     <div v-else-if="ids.length === 0" class="empty">
       <div class="empty__art"><v-icon icon="mdi-heart-outline" size="56" /></div>
       <div>
-        <h2 class="sk-h2">No favourites <em>yet.</em></h2>
-        <p class="sk-lede mt-3">Tap the heart on any product to save it here for later.</p>
-        <v-btn to="/#shop" color="primary" size="large" class="mt-6" append-icon="mdi-arrow-right">Browse the shop</v-btn>
+        <h2 class="sk-h2">Nothing saved <em>so far.</em></h2>
+        <p class="sk-lede mt-3">See something you like? Hit the heart icon and it lands on this page.</p>
+        <v-btn to="/#shop" color="primary" size="large" class="mt-6" append-icon="mdi-arrow-right">Explore products</v-btn>
       </div>
     </div>
 
@@ -42,17 +42,17 @@
       <!-- Saved items that are no longer sold (inactive or deleted) -->
       <section v-if="missingIds.length" class="missing sk-surface">
         <div>
-          <h2 class="sk-h3">{{ missingIds.length }} saved {{ missingIds.length === 1 ? 'item is' : 'items are' }} no longer available</h2>
-          <p class="sk-muted mt-1 mb-0">They were deactivated or removed from the store.</p>
+          <h2 class="sk-h3">{{ missingIds.length }} saved {{ missingIds.length === 1 ? 'item is' : 'items are' }} not sold anymore</h2>
+          <p class="sk-muted mt-1 mb-0">The store has hidden or deleted them.</p>
         </div>
-        <v-btn variant="outlined" color="primary" @click="removeMissing">Remove from wishlist</v-btn>
+        <v-btn variant="outlined" color="primary" @click="removeMissing">Clear them out</v-btn>
       </section>
 
       <div v-if="savedProducts.length" class="actions">
         <v-btn color="primary" size="large" prepend-icon="mdi-cart-plus" :disabled="!canAddAny" @click="addAllToCart">
-          Add all available to cart
+          Move everything to cart
         </v-btn>
-        <NuxtLink to="/#shop" class="sk-link">Keep browsing</NuxtLink>
+        <NuxtLink to="/#shop" class="sk-link">Back to the shop</NuxtLink>
       </div>
     </template>
   </div>
@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 // @ts-nocheck
-useHead({ title: 'Wishlist | ShopKart' })
+useHead({ title: 'Saved Items · ShopKart' })
 
 const { ids, removeFromWishlist } = useWishlist()
 const { products, loading, loaded, error, loadProducts } = useCatalog()
@@ -82,7 +82,7 @@ const canAddAny = computed(() =>
 
 function removeMissing() {
   missingIds.value.forEach((id) => removeFromWishlist(id))
-  notify('Unavailable items removed from your wishlist.', 'info')
+  notify('Cleared out the items that are no longer sold.', 'info')
 }
 
 function addAllToCart() {
@@ -92,7 +92,7 @@ function addAllToCart() {
       if (cart.addToCart(product).ok) added++
     }
   }
-  notify(added ? `${added} ${added === 1 ? 'product' : 'products'} added to cart.` : 'Nothing new could be added.', added ? 'success' : 'warning')
+  notify(added ? `Moved ${added} ${added === 1 ? 'item' : 'items'} into your cart.` : 'Everything here is already in your cart or sold out.', added ? 'success' : 'warning')
 }
 
 onMounted(loadProducts)
@@ -153,7 +153,7 @@ onMounted(loadProducts)
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: var(--sk-mist-deep);
+  background: var(--sk-well);
 }
 
 .state {
@@ -178,8 +178,8 @@ onMounted(loadProducts)
   width: 200px;
   aspect-ratio: 1;
   border-radius: var(--sk-r-xl);
-  background: var(--sk-meadow);
-  color: var(--sk-teal);
+  background: var(--sk-primary-soft);
+  color: var(--sk-secondary);
   display: grid;
   place-items: center;
 }

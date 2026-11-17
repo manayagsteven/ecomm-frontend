@@ -63,19 +63,20 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: 'en' },
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'theme-color', content: '#F7F9E1' },
+        { name: 'theme-color', content: '#FC6E20' },
       ],
       link: [
-        // Tab / bookmark icons, generated from system-logo.png.
-        // Bump ?v= whenever the icon changes so browsers drop their cached copy.
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico?v=2', sizes: '48x48' },
-        { rel: 'icon', type: 'image/png', href: '/favicon-32.png?v=2', sizes: '32x32' },
-        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png?v=2', sizes: '180x180' },
+        // Tab / bookmark icons, generated from the project's logo.png
+        // (orange tile with the dark cart). Bump ?v= whenever the icon
+        // changes so browsers drop their cached copy.
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico?v=5', sizes: '48x48' },
+        { rel: 'icon', type: 'image/png', href: '/favicon-32.png?v=5', sizes: '32x32' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png?v=5', sizes: '180x180' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap',
         },
       ],
     },

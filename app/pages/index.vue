@@ -2,321 +2,332 @@
 <template>
   <div>
     <!-- ========================================
-         HERO (bento composition)
+         HERO BANNER (orange, rounded, featured product on the right)
     ========================================= -->
-    <section class="hero sk-container" aria-labelledby="hero-title">
-      <div class="hero__grid">
-        <!-- Editorial copy sits directly on the page, no card -->
+    <section class="sk-container hero-wrap" aria-labelledby="hero-title">
+      <div class="hero">
         <div class="hero__copy">
-          <span class="sk-eyebrow">New season · {{ year }}</span>
-          <h1 id="hero-title" class="sk-display mt-5">
-            Good things,<br><em>well chosen.</em>
-          </h1>
-          <p class="sk-lede mt-6">
-            A short, considered catalog of tech, carry and home goods. Every
-            order is checked against live stock before it ships.
+          <span class="hero__kicker">Fresh drops · {{ year }}</span>
+          <h1 id="hero-title" class="hero__title">Good Finds,<br>Right at Your Door</h1>
+          <p class="hero__lede">
+            From phones and perfume to gas stoves and plushies, pick what you
+            need and we'll bring it to you. Pay the rider in cash, or settle
+            it with GCash, Maya or a bank transfer.
           </p>
-          <div class="d-flex flex-wrap align-center ga-5 mt-8">
-            <v-btn color="primary" size="x-large" append-icon="mdi-arrow-right" @click="scrollTo('shop')">
-              Shop the collection
+          <div class="hero__actions">
+            <v-btn color="secondary" size="large" append-icon="mdi-arrow-right" @click="scrollTo('shop')">
+              Start Browsing
             </v-btn>
-            <a href="#categories" class="sk-link" @click.prevent="scrollTo('categories')">Browse categories</a>
+            <v-btn variant="outlined" size="large" class="hero__ghost" @click="scrollTo('categories')">
+              See Departments
+            </v-btn>
           </div>
 
           <dl class="hero__facts">
             <div>
-              <dt>Products</dt>
               <dd class="sk-num">{{ loading && !loaded ? '–' : products.length }}</dd>
+              <dt>Items listed</dt>
             </div>
             <div>
-              <dt>Categories</dt>
               <dd class="sk-num">{{ categoriesInUse }}</dd>
+              <dt>Departments</dt>
             </div>
             <div>
-              <dt>Units in stock</dt>
               <dd class="sk-num">{{ unitsInStock }}</dd>
+              <dt>Pieces ready to ship</dt>
             </div>
           </dl>
         </div>
 
-        <!-- Featured product: strong Teal Waters tile -->
-        <article class="hero__feature sk-tint-teal">
-          <div class="d-flex align-center justify-space-between">
-            <span class="hero__tag">Featured</span>
-            <span v-if="featured" class="hero__tag hero__tag--ghost">{{ featured.category || 'New in' }}</span>
+        <!-- Featured product -->
+        <div class="hero__visual">
+          <!-- Stage: soft glow + rings behind, a podium underneath the product -->
+          <div class="hero__stage">
+            <span class="hero__glow" aria-hidden="true" />
+            <span class="hero__ring hero__ring--outer" aria-hidden="true" />
+            <span class="hero__ring hero__ring--inner" aria-hidden="true" />
+            <span class="hero__podium" aria-hidden="true" />
+
+            <template v-if="featured">
+              <ProductImage
+                v-if="getImageUrl(featured.image)"
+                :src="getImageUrl(featured.image)"
+                :alt="featured.name"
+                class="hero__img"
+              />
+              <v-icon v-else :icon="getCategoryIcon(featured.category)" size="120" class="hero__icon" />
+            </template>
+            <v-progress-circular v-else-if="loading" indeterminate color="secondary" class="hero__icon" />
+            <v-icon v-else icon="mdi-shopping-outline" size="120" class="hero__icon" />
           </div>
 
           <template v-if="featured">
-            <div class="hero__plinth">
-              <img v-if="getImageUrl(featured.image)" :src="getImageUrl(featured.image)" :alt="featured.name">
-              <v-icon v-else :icon="getCategoryIcon(featured.category)" size="96" />
-            </div>
-            <div class="hero__feature-info">
-              <div>
-                <h2 class="sk-h3">{{ featured.name }}</h2>
-                <div class="hero__price sk-num">{{ formatPrice(featured.price) }}</div>
+            <div class="hero__card">
+              <div class="hero__card-info">
+                <span class="hero__card-label">Spotlight · {{ featured.category || 'Just in' }}</span>
+                <strong class="hero__card-name">{{ featured.name }}</strong>
+                <span class="hero__card-price sk-num">{{ formatPrice(featured.price) }}</span>
               </div>
               <v-btn
-                color="secondary"
-                size="large"
-                prepend-icon="mdi-plus"
+                color="primary"
+                icon="mdi-cart-plus"
                 :disabled="Number(featured.stock) <= 0"
+                :aria-label="`Put ${featured.name} in your cart`"
                 @click="addFeatured"
-              >
-                Add to cart
-              </v-btn>
+              />
             </div>
           </template>
-
-          <div v-else class="hero__feature-empty">
-            <v-progress-circular v-if="loading" indeterminate color="secondary" />
-            <template v-else>
-              <h2 class="sk-h3">Fresh arrivals land here.</h2>
-              <p>Add an active product in Manage Products to feature it.</p>
-            </template>
-          </div>
-        </article>
-
-        <!-- Two small supporting tiles -->
-        <div class="hero__tile sk-tint-meadow">
-          <v-icon icon="mdi-cash-multiple" size="28" />
-          <div>
-            <h3 class="hero__tile-title">Pay your way</h3>
-            <p>Cash on Delivery, GCash, Maya or bank transfer.</p>
-          </div>
-        </div>
-        <div class="hero__tile sk-tint-sky">
-          <v-icon icon="mdi-package-variant-closed-check" size="28" />
-          <div>
-            <h3 class="hero__tile-title">Live stock</h3>
-            <p>Your cart can never hold more than we have.</p>
-          </div>
         </div>
       </div>
     </section>
 
     <!-- ========================================
-         CATEGORIES (asymmetric bento)
+         FEATURED PRODUCTS
     ========================================= -->
-    <section id="categories" class="sk-section sk-container sk-anchor" aria-labelledby="categories-title">
-      <div class="section-head">
-        <div>
-          <span class="sk-eyebrow">01 · Browse</span>
-          <h2 id="categories-title" class="sk-h2 mt-3">Shop by <em>category</em></h2>
-        </div>
-        <p class="sk-muted section-head__note">
-          Seven focused departments. Pick one to filter the shop below.
-        </p>
+    <section
+      v-if="(loading && !loaded) || featuredProducts.length"
+      class="sk-container sk-section featured"
+      aria-labelledby="featured-title"
+    >
+      <div class="sk-section-head">
+        <h2 id="featured-title" class="sk-h2">This Week's Picks</h2>
+        <v-btn color="primary" append-icon="mdi-arrow-right" @click="scrollTo('shop')">View Full Catalog</v-btn>
       </div>
 
-      <div class="cat-grid">
+      <div v-if="loading && !loaded" class="grid" aria-busy="true">
+        <div v-for="n in 4" :key="n" class="skeleton">
+          <div class="skeleton__img" />
+          <div class="skeleton__line w-50" />
+          <div class="skeleton__line w-75" />
+        </div>
+      </div>
+      <div v-else class="grid">
+        <ProductCard v-for="product in featuredProducts" :key="product.documentId" :product="product" />
+      </div>
+    </section>
+
+    <!-- ========================================
+         SHOP BY CATEGORY (horizontal scroller with arrows)
+    ========================================= -->
+    <section id="categories" class="sk-container sk-section sk-anchor cats" aria-labelledby="categories-title">
+      <div class="sk-section-head">
+        <h2 id="categories-title" class="sk-h2">Browse by Department</h2>
+        <div class="cats__arrows">
+          <button type="button" class="cats__arrow sk-focus" aria-label="Scroll departments left" @click="scrollCategories(-1)">
+            <v-icon icon="mdi-chevron-left" />
+          </button>
+          <button type="button" class="cats__arrow sk-focus" aria-label="Scroll departments right" @click="scrollCategories(1)">
+            <v-icon icon="mdi-chevron-right" />
+          </button>
+        </div>
+      </div>
+
+      <div ref="categoryTrack" class="cats__track">
         <button
           v-for="tile in categoryTiles"
           :key="tile.name"
           type="button"
           class="cat sk-focus"
-          :class="[`cat--${tile.tone}`, `cat--${tile.size}`, { 'is-selected': selectedCategory === tile.name }]"
+          :class="{ 'is-selected': selectedCategory === tile.name }"
           @click="selectCategory(tile.name, true)"
         >
-          <span class="cat__top">
-            <span class="cat__icon"><v-icon :icon="tile.icon" :size="tile.size === 'xl' ? 30 : 22" /></span>
-            <span class="cat__count sk-num">{{ tile.count }} {{ tile.count === 1 ? 'item' : 'items' }}</span>
+          <span class="cat__text">
+            <span class="cat__name">{{ tile.label || tile.name }}</span>
+            <span class="cat__blurb">{{ tile.blurb }} · {{ tile.count }} {{ tile.count === 1 ? 'listing' : 'listings' }}</span>
+            <span class="cat__link">Explore {{ tile.name === 'All Categories' ? 'the catalog' : tile.name }} <v-icon icon="mdi-chevron-right" size="16" /></span>
           </span>
-          <span class="cat__bottom">
-            <span>
-              <span class="cat__name">{{ tile.name }}</span>
-              <span class="cat__blurb">{{ tile.blurb }}</span>
-            </span>
-            <v-icon icon="mdi-arrow-top-right" class="cat__arrow" />
+          <span class="cat__media">
+            <ProductImage v-if="tile.image" :src="tile.image" alt="" class="cat__img" />
+            <v-icon v-else :icon="tile.icon" size="72" class="cat__icon" />
           </span>
         </button>
       </div>
     </section>
 
     <!-- ========================================
-         SHOP: search, category filter, product grid
+         ALL PRODUCTS: search, category filter, sort, grid
     ========================================= -->
-    <section id="shop" class="shop sk-anchor" aria-labelledby="shop-title">
-      <div class="sk-container sk-section">
-        <div class="section-head">
-          <div>
-            <span class="sk-eyebrow">02 · The shop</span>
-            <h2 id="shop-title" class="sk-h2 mt-3">Everything <em>in stock</em></h2>
-          </div>
-          <p class="sk-muted section-head__note">
-            Search by name, description or category.
-          </p>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="toolbar">
-          <v-text-field
-            v-model="search"
-            placeholder="Search products, e.g. headphones"
-            prepend-inner-icon="mdi-magnify"
-            clearable
-            hide-details
-            class="toolbar__search"
-            aria-label="Search products"
-          />
-          <v-select
-            v-model="sortBy"
-            :items="sortOptions"
-            item-title="label"
-            item-value="value"
-            hide-details
-            class="toolbar__sort"
-            aria-label="Sort products"
-            prepend-inner-icon="mdi-sort"
-          />
-        </div>
-
-        <!-- Category filter chips -->
-        <div class="chips" role="group" aria-label="Filter by category">
-          <button
-            v-for="name in ['All Categories', ...CATEGORY_NAMES]"
-            :key="name"
-            type="button"
-            class="chip sk-focus"
-            :class="{ 'is-on': selectedCategory === name }"
-            :aria-pressed="selectedCategory === name"
-            @click="selectCategory(name)"
-          >
-            {{ name }}
-            <span class="chip__count sk-num">{{ name === 'All Categories' ? products.length : categoryCounts[name] || 0 }}</span>
-          </button>
-        </div>
-
-        <div class="result-line">
-          <span class="sk-muted">
-            Showing <strong class="sk-num">{{ filteredProducts.length }}</strong>
-            {{ filteredProducts.length === 1 ? 'product' : 'products' }}
-            <template v-if="selectedCategory !== 'All Categories'"> in <strong>{{ selectedCategory }}</strong></template>
-            <template v-if="search"> for “<strong>{{ search }}</strong>”</template>
-          </span>
-          <button v-if="hasFilters" type="button" class="sk-link sk-focus" @click="clearFilters">Clear filters</button>
-        </div>
-
-        <!-- Loading -->
-        <div v-if="loading && !loaded" class="grid" aria-busy="true">
-          <div v-for="n in 8" :key="n" class="skeleton">
-            <div class="skeleton__img" />
-            <div class="skeleton__line w-50" />
-            <div class="skeleton__line w-75" />
-            <div class="skeleton__line w-25" />
-          </div>
-        </div>
-
-        <!-- API error -->
-        <div v-else-if="error" class="state sk-surface">
-          <v-icon icon="mdi-cloud-alert-outline" size="44" color="error" />
-          <h3 class="sk-h3 mt-3">The shop is unreachable</h3>
-          <p class="sk-muted mt-2">{{ error }}</p>
-          <v-btn color="primary" class="mt-5" prepend-icon="mdi-refresh" @click="loadProducts">Try again</v-btn>
-        </div>
-
-        <!-- No products at all -->
-        <div v-else-if="products.length === 0" class="state sk-surface">
-          <v-icon icon="mdi-package-variant" size="44" class="sk-subtle" />
-          <h3 class="sk-h3 mt-3">No products yet</h3>
-          <p class="sk-muted mt-2">Active products added in Manage Products will appear here.</p>
-          <v-btn to="/products" color="primary" class="mt-5" prepend-icon="mdi-plus">Add products</v-btn>
-        </div>
-
-        <!-- No match for the filters -->
-        <div v-else-if="filteredProducts.length === 0" class="state sk-surface">
-          <v-icon icon="mdi-magnify-close" size="44" class="sk-subtle" />
-          <h3 class="sk-h3 mt-3">Nothing matches that</h3>
-          <p class="sk-muted mt-2">Try a different word, or go back to All Categories.</p>
-          <v-btn color="primary" variant="outlined" class="mt-5" @click="clearFilters">Show all products</v-btn>
-        </div>
-
-        <!-- Product grid -->
-        <div v-else class="grid">
-          <ProductCard v-for="product in filteredProducts" :key="product.documentId" :product="product" />
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================
-         PROMOTIONS (color-blocked editorial tiles)
-    ========================================= -->
-    <section id="promotions" class="sk-section sk-container sk-anchor" aria-labelledby="promo-title">
-      <span class="sk-eyebrow">03 · Edits</span>
-      <div class="promo-grid mt-6">
-        <article class="promo promo--main sk-tint-teal">
-          <div class="promo__copy">
-            <span class="promo__kicker">The audio edit</span>
-            <h2 id="promo-title" class="promo__title">Sound that<br><em>travels</em> with you.</h2>
-            <p>
-              Headphones, speakers and small gadgets picked for commutes,
-              desks and long trips.
-            </p>
-            <v-btn color="secondary" size="large" append-icon="mdi-arrow-right" @click="selectCategory('Electronics', true)">
-              Shop Electronics
-            </v-btn>
-          </div>
-          <div class="promo__visual">
-            <div class="promo__disc" />
-            <img v-if="promoImage" :src="promoImage" alt="" class="promo__img">
-            <v-icon v-else icon="mdi-headphones" size="140" class="promo__icon" />
-          </div>
-        </article>
-
-        <article class="promo promo--side sk-tint-sky">
-          <!-- Visual: a real Bags product photo, or an icon when none has an image -->
-          <div class="side__visual">
-            <img v-if="bagsImage" :src="bagsImage" alt="" class="side__img">
-            <v-icon v-else icon="mdi-bag-personal-outline" size="120" class="side__icon" />
-          </div>
-
-          <div class="side__copy">
-            <span class="promo__kicker">Carry better</span>
-            <h2 class="promo__title promo__title--sm">Pack light.<br><em>Move more.</em></h2>
-            <p>Bags and everyday carry built for the commute.</p>
-            <v-btn color="primary" append-icon="mdi-arrow-right" @click="selectCategory('Bags', true)">
-              Shop Bags
-            </v-btn>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- ========================================
-         NEWSLETTER (Spring Meadow block)
-    ========================================= -->
-    <section class="newsletter sk-tint-meadow" aria-labelledby="newsletter-title">
-      <div class="sk-container newsletter__inner">
+    <section id="shop" class="sk-container sk-section sk-anchor shop" aria-labelledby="shop-title">
+      <div class="sk-section-head">
         <div>
-          <span class="sk-eyebrow">Newsletter</span>
-          <h2 id="newsletter-title" class="sk-h1 mt-4">Letters from<br><em>the shop floor.</em></h2>
+          <h2 id="shop-title" class="sk-h2">The Full Catalog</h2>
+          <p class="sk-muted mt-1 mb-0">Type a product name or keyword, or tap a department to narrow things down.</p>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <v-text-field
+          v-model="search"
+          placeholder="Try “perfume” or “gas stove”"
+          prepend-inner-icon="mdi-magnify"
+          clearable
+          hide-details
+          class="toolbar__search"
+          aria-label="Find a product"
+        />
+        <v-select
+          v-model="sortBy"
+          :items="sortOptions"
+          item-title="label"
+          item-value="value"
+          hide-details
+          class="toolbar__sort"
+          aria-label="Sort the catalog"
+          prepend-inner-icon="mdi-sort"
+        />
+      </div>
+
+      <!-- Category filter chips -->
+      <div class="chips" role="group" aria-label="Filter by department">
+        <button
+          v-for="name in ['All Categories', ...CATEGORY_NAMES]"
+          :key="name"
+          type="button"
+          class="chip sk-focus"
+          :class="{ 'is-on': selectedCategory === name }"
+          :aria-pressed="selectedCategory === name"
+          @click="selectCategory(name)"
+        >
+          {{ name === 'All Categories' ? 'Everything' : name }}
+          <span class="chip__count sk-num">{{ name === 'All Categories' ? products.length : categoryCounts[name] || 0 }}</span>
+        </button>
+      </div>
+
+      <div class="result-line">
+        <span class="sk-muted">
+          <strong class="sk-num">{{ filteredProducts.length }}</strong>
+          {{ filteredProducts.length === 1 ? 'item' : 'items' }} found
+          <template v-if="selectedCategory !== 'All Categories'"> in <strong>{{ selectedCategory }}</strong></template>
+          <template v-if="search"> for “<strong>{{ search }}</strong>”</template>
+        </span>
+        <button v-if="hasFilters" type="button" class="sk-link sk-focus" @click="clearFilters">Reset filters</button>
+      </div>
+
+      <!-- Loading -->
+      <div v-if="loading && !loaded" class="grid" aria-busy="true">
+        <div v-for="n in 8" :key="n" class="skeleton">
+          <div class="skeleton__img" />
+          <div class="skeleton__line w-50" />
+          <div class="skeleton__line w-75" />
+          <div class="skeleton__line w-25" />
+        </div>
+      </div>
+
+      <!-- API error -->
+      <div v-else-if="error" class="state">
+        <v-icon icon="mdi-cloud-alert-outline" size="44" color="error" />
+        <h3 class="sk-h3 mt-3">We can't reach the store right now</h3>
+        <p class="sk-muted mt-2">{{ error }}</p>
+        <v-btn color="primary" class="mt-5" prepend-icon="mdi-refresh" @click="loadProducts">Reload</v-btn>
+      </div>
+
+      <!-- No products at all -->
+      <div v-else-if="products.length === 0" class="state">
+        <v-icon icon="mdi-package-variant" size="44" class="sk-subtle" />
+        <h3 class="sk-h3 mt-3">The shelves are empty</h3>
+        <p class="sk-muted mt-2">Products you publish from Store Admin will show up here.</p>
+        <v-btn to="/products" color="primary" class="mt-5" prepend-icon="mdi-plus">Open Store Admin</v-btn>
+      </div>
+
+      <!-- No match for the filters -->
+      <div v-else-if="filteredProducts.length === 0" class="state">
+        <v-icon icon="mdi-magnify-close" size="44" class="sk-subtle" />
+        <h3 class="sk-h3 mt-3">No matches for that</h3>
+        <p class="sk-muted mt-2">Try another keyword, or switch back to Everything.</p>
+        <v-btn color="secondary" variant="outlined" class="mt-5" @click="clearFilters">See everything</v-btn>
+      </div>
+
+      <!-- Product grid -->
+      <div v-else class="grid">
+        <ProductCard v-for="product in filteredProducts" :key="product.documentId" :product="product" />
+      </div>
+    </section>
+
+    <!-- ========================================
+         EXPERIENCE (three service highlights)
+    ========================================= -->
+    <section class="sk-container experience-wrap" aria-labelledby="experience-title">
+      <div class="experience">
+        <h2 id="experience-title" class="sk-h2 experience__title">
+          Shopping Here Is<br>Easy From Start to Finish
+        </h2>
+
+        <div class="experience__grid">
+          <div v-for="item in services" :key="item.title" class="service">
+            <span class="service__icon"><v-icon :icon="item.icon" size="26" /></span>
+            <h3 class="service__title">{{ item.title }}</h3>
+            <p>{{ item.text }}</p>
+          </div>
+        </div>
+
+        <v-btn color="primary" size="large" @click="scrollTo('shop')">Find Something</v-btn>
+      </div>
+    </section>
+
+    <!-- ========================================
+         WHY SHOPKART (four reasons around a product photo)
+    ========================================= -->
+    <section id="why" class="sk-container sk-section sk-anchor why" aria-labelledby="why-title">
+      <h2 id="why-title" class="sk-h2 why__title">The ShopKart Promise</h2>
+
+      <div class="why__grid">
+        <div class="why__col">
+          <div v-for="reason in reasons.slice(0, 2)" :key="reason.title" class="reason">
+            <h3 class="reason__title"><v-icon icon="mdi-play-outline" size="20" class="reason__mark" />{{ reason.title }}</h3>
+            <p>{{ reason.text }}</p>
+          </div>
+        </div>
+
+        <div class="why__visual">
+          <div class="why__disc" />
+          <ProductImage v-if="promoImage" :src="promoImage" alt="" class="why__img" />
+          <v-icon v-else icon="mdi-headphones" size="140" class="why__icon" />
+        </div>
+
+        <div class="why__col">
+          <div v-for="reason in reasons.slice(2)" :key="reason.title" class="reason">
+            <h3 class="reason__title"><v-icon icon="mdi-play-outline" size="20" class="reason__mark" />{{ reason.title }}</h3>
+            <p>{{ reason.text }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================
+         NEWSLETTER (charcoal banner)
+    ========================================= -->
+    <section class="sk-container newsletter-wrap" aria-labelledby="newsletter-title">
+      <div class="newsletter">
+        <div>
+          <h2 id="newsletter-title" class="sk-h2">Be the First to Know</h2>
           <p class="newsletter__lede">
-            New arrivals and restocks, once a month. No spam, unsubscribe any time.
+            One short email a month about new items and restocks. Leave the list whenever you want.
           </p>
         </div>
 
         <v-form ref="newsletterForm" class="newsletter__form" @submit.prevent="subscribe">
           <template v-if="!subscribed">
-            <label for="newsletter-email" class="newsletter__label">Email address</label>
+            <label for="newsletter-email" class="newsletter__label">Your email</label>
             <div class="newsletter__row">
               <v-text-field
                 id="newsletter-email"
                 v-model="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="juan@email.com"
                 bg-color="white"
                 :rules="emailRules"
                 validate-on="submit"
                 class="newsletter__field"
               />
-              <v-btn type="submit" color="primary" size="x-large" :loading="subscribing">Subscribe</v-btn>
+              <v-btn type="submit" color="primary" size="x-large" :loading="subscribing">Sign Me Up</v-btn>
             </div>
           </template>
           <div v-else class="newsletter__done" role="status">
             <v-icon icon="mdi-email-check-outline" size="32" />
             <div>
-              <strong>You're on the list.</strong>
-              <div>We'll write to {{ subscribedEmail }} when something new lands.</div>
+              <strong>You're in!</strong>
+              <div>Watch {{ subscribedEmail }} for our next update.</div>
             </div>
           </div>
         </v-form>
@@ -328,7 +339,7 @@
 <script setup lang="ts">
 // @ts-nocheck
 
-useHead({ title: 'ShopKart | Good things, well chosen' })
+useHead({ title: 'ShopKart · Good finds, right at your door' })
 
 const route = useRoute()
 const router = useRouter()
@@ -352,10 +363,10 @@ const selectedCategory = ref(
 const sortBy = ref('newest')
 
 const sortOptions = [
-  { label: 'Newest first', value: 'newest' },
-  { label: 'Price: low to high', value: 'price-asc' },
-  { label: 'Price: high to low', value: 'price-desc' },
-  { label: 'Name: A to Z', value: 'name' },
+  { label: 'Latest arrivals', value: 'newest' },
+  { label: 'Lowest price', value: 'price-asc' },
+  { label: 'Highest price', value: 'price-desc' },
+  { label: 'Alphabetical (A–Z)', value: 'name' },
 ]
 
 const filteredProducts = computed(() => {
@@ -416,7 +427,7 @@ function scrollTo(id) {
 }
 
 /* ========================================
-   CATEGORY TILES (counts come from Strapi data)
+   CATEGORY CARDS (counts and photos come from Strapi data)
 ========================================= */
 const categoryCounts = computed(() => {
   const counts = {}
@@ -432,51 +443,81 @@ const unitsInStock = computed(() =>
   products.value.reduce((sum, product) => sum + Number(product.stock || 0), 0)
 )
 
-// Tone + size give the bento its rhythm. Only three accent colors are used.
-const tileStyle = {
-  Electronics: { tone: 'sky', size: 'xl' },
-  Fashion: { tone: 'meadow', size: 'sm' },
-  Sports: { tone: 'white', size: 'sm' },
-  Bags: { tone: 'white', size: 'sm' },
-  Beauty: { tone: 'white', size: 'sm' },
-  'Home & Living': { tone: 'teal', size: 'wide' },
-  Toys: { tone: 'white', size: 'sm' },
+// First product photo in each category, used on its card
+function categoryImage(name) {
+  const product = products.value.find((item) => item.category === name && item.image)
+  return getImageUrl(product?.image)
 }
 
 const categoryTiles = computed(() => [
   ...CATEGORIES.map((category) => ({
     ...category,
-    ...tileStyle[category.name],
     count: categoryCounts.value[category.name] || 0,
+    image: categoryImage(category.name),
   })),
   {
     name: 'All Categories',
+    label: 'Everything',
     icon: 'mdi-view-grid-outline',
-    blurb: 'See the full catalog',
-    tone: 'mist',
-    size: 'sm',
+    blurb: 'Every department in one place',
     count: products.value.length,
+    image: null,
   },
 ])
+
+const categoryTrack = ref(null)
+
+function scrollCategories(direction) {
+  const track = categoryTrack.value
+  if (!track) return
+  track.scrollBy({ left: direction * track.clientWidth * 0.8, behavior: 'smooth' })
+}
 
 /* ========================================
    FEATURED + PROMO IMAGERY (from real products)
 ========================================= */
+const inStockProducts = computed(() =>
+  products.value.filter((product) => product.is_active && Number(product.stock) > 0)
+)
+
+// Product shown in the hero. Matched by name; if it is missing or sold out,
+// the first in-stock product with a photo is used instead.
+const HERO_PRODUCT_NAME = 'iphone 16'
+
 const featured = computed(() => {
-  const inStock = products.value.filter((product) => Number(product.stock) > 0)
-  return inStock.find((product) => product.image) || inStock[0] || null
+  const list = inStockProducts.value
+  return (
+    list.find((product) => product.name?.toLowerCase().trim() === HERO_PRODUCT_NAME) ||
+    list.find((product) => product.image) ||
+    list[0] ||
+    null
+  )
+})
+
+// Four in-stock products with photos, one per category where possible
+const featuredProducts = computed(() => {
+  const withImages = inStockProducts.value.filter((product) => product.image)
+  const picked = []
+  const seen = new Set()
+  for (const product of withImages) {
+    if (seen.has(product.category)) continue
+    seen.add(product.category)
+    picked.push(product)
+    if (picked.length === 4) return picked
+  }
+  for (const product of withImages) {
+    if (!picked.includes(product)) picked.push(product)
+    if (picked.length === 4) break
+  }
+  return picked
 })
 
 const promoImage = computed(() => {
-  const audio = products.value.find((product) => product.category === 'Electronics' && product.image)
+  const audio = products.value.find(
+    (product) => product.category === 'Electronics' && product.image && product !== featured.value
+  )
   const fallback = products.value.find((product) => product.image)
   return getImageUrl((audio || fallback)?.image)
-})
-
-// Only a real Bags product photo is used here (no fallback to other categories)
-const bagsImage = computed(() => {
-  const bag = products.value.find((product) => product.category === 'Bags' && product.image)
-  return getImageUrl(bag?.image)
 })
 
 function addFeatured() {
@@ -484,6 +525,46 @@ function addFeatured() {
   const result = cart.addToCart(featured.value)
   notify(result.message, result.ok ? 'success' : 'warning')
 }
+
+/* ========================================
+   STATIC COPY (service highlights and reasons)
+========================================= */
+const services = [
+  {
+    icon: 'mdi-cash-multiple',
+    title: 'Pay However You Like',
+    text: 'Cash to the rider, GCash, Maya or a bank transfer. You decide at checkout.',
+  },
+  {
+    icon: 'mdi-package-variant-closed-check',
+    title: 'Real-Time Inventory',
+    text: 'Counts update the moment someone buys, so what you order is really on the shelf.',
+  },
+  {
+    icon: 'mdi-heart-outline',
+    title: 'Your Cart Remembers',
+    text: 'Close the tab and come back later. Your cart and saved items will still be here.',
+  },
+]
+
+const reasons = [
+  {
+    title: 'Hand-Picked Selection',
+    text: 'Seven departments stocked with things people actually use, from gas stoves to plushies.',
+  },
+  {
+    title: 'Clear Stock Counts',
+    text: 'Every listing shows how many pieces are left, with a heads-up when it runs low.',
+  },
+  {
+    title: 'Cash or Cashless',
+    text: 'Settle at your door in cash, or pay ahead from your phone. Both work.',
+  },
+  {
+    title: 'Quick Checkout',
+    text: 'Name, number, address and payment on a single page, and you are finished.',
+  },
+]
 
 /* ========================================
    NEWSLETTER (front-end only)
@@ -495,8 +576,8 @@ const subscribed = ref(false)
 const subscribedEmail = ref('')
 
 const emailRules = [
-  (value) => !!value || 'Enter your email address',
-  (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 'Enter a valid email address',
+  (value) => !!value || 'Please type your email',
+  (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 'That email doesn\'t look right',
 ]
 
 async function subscribe() {
@@ -509,7 +590,7 @@ async function subscribe() {
   subscribedEmail.value = email.value
   subscribed.value = true
   subscribing.value = false
-  notify('Thanks for subscribing!', 'success')
+  notify('Welcome aboard! Watch your inbox.', 'success')
 }
 
 /* ========================================
@@ -525,442 +606,242 @@ onMounted(() => {
   scroll-margin-top: 88px;
 }
 
-/* ---------- Hero ---------- */
+/* ---------- Hero banner ---------- */
+.hero-wrap {
+  padding-top: 28px;
+}
+
 .hero {
-  padding-top: 40px;
-  padding-bottom: 24px;
-}
-
-.hero__grid {
+  position: relative;
   display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-areas:
-    'copy copy'
-    'feature feature'
-    'meadow sky';
+  grid-template-columns: 1fr;
+  gap: 8px;
+  border-radius: var(--sk-r-xl);
+  overflow: hidden;
+  color: var(--sk-on-primary);
+  background:
+    radial-gradient(120% 140% at 100% 0%, #ff9a5c 0%, rgba(255, 154, 92, 0) 55%),
+    var(--sk-primary);
 }
 
-@media (min-width: 960px) {
+@media (min-width: 900px) {
   .hero {
-    padding-top: 56px;
-  }
-
-  .hero__grid {
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: auto auto;
-    grid-template-areas:
-      'copy copy copy copy copy copy copy feature feature feature feature feature'
-      'meadow meadow meadow meadow sky sky sky feature feature feature feature feature';
-    gap: 20px;
+    grid-template-columns: 1.15fr 1fr;
+    min-height: 440px;
   }
 }
 
 .hero__copy {
-  grid-area: copy;
-  padding: 8px 0 32px;
+  position: relative;
+  z-index: 1;
+  padding: 36px 24px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-@media (min-width: 960px) {
+@media (min-width: 900px) {
   .hero__copy {
-    padding: 24px 32px 24px 0;
+    padding: 48px 0 48px 56px;
   }
+}
+
+.hero__kicker {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--sk-primary-soft);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hero__title {
+  margin: 18px 0 0;
+  font-family: var(--sk-font-display);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 4.8vw, 3.6rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.hero__lede {
+  margin: 16px 0 0;
+  max-width: 46ch;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #2b2b2b;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.hero__ghost {
+  color: var(--sk-on-primary) !important;
+  border-color: var(--sk-on-primary) !important;
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .hero__facts {
   display: flex;
   flex-wrap: wrap;
-  gap: 32px;
-  margin-top: 48px;
-  padding-top: 20px;
-  border-top: 1px solid var(--sk-line-strong);
-  max-width: 520px;
+  gap: 12px 32px;
+  margin: 32px 0 0;
+}
+
+.hero__facts div {
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .hero__facts dt {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--sk-ink-3);
+  font-size: 13px;
+  font-weight: 500;
+  color: #2b2b2b;
 }
 
 .hero__facts dd {
-  font-family: var(--sk-font-display);
-  font-size: 2rem;
-  font-weight: 500;
-  margin-top: 2px;
-}
-
-.hero__feature {
-  grid-area: feature;
-  border-radius: var(--sk-r-xl);
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  min-height: 460px;
-}
-
-.hero__tag {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: var(--sk-meadow);
-  color: var(--sk-teal);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.hero__tag--ghost {
-  background: var(--sk-teal-deep);
-  color: var(--sk-on-teal);
-}
-
-.hero__plinth {
-  flex: 1;
-  margin: 18px 0;
-  border-radius: var(--sk-r-lg);
-  background: var(--sk-sky);
-  display: grid;
-  place-items: center;
-  min-height: 240px;
-  overflow: hidden;
-  color: var(--sk-teal);
-}
-
-.hero__plinth img {
-  width: 100%;
-  height: 100%;
-  max-height: 340px;
-  object-fit: contain;
-  padding: 8%;
-}
-
-.hero__feature-info {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.hero__price {
-  margin-top: 6px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--sk-meadow);
-}
-
-.hero__feature-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 8px;
-  color: var(--sk-on-teal-2);
-}
-
-.hero__feature-empty .sk-h3 {
-  color: var(--sk-on-teal);
-}
-
-.hero__feature-empty .v-progress-circular {
-  margin: auto;
-}
-
-.hero__tile {
-  border-radius: var(--sk-r-lg);
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 28px;
-  min-height: 170px;
-}
-
-.hero__tile.sk-tint-meadow {
-  grid-area: meadow;
-}
-
-.hero__tile.sk-tint-sky {
-  grid-area: sky;
-}
-
-.hero__tile-title {
-  font-family: var(--sk-font-display);
-  font-size: 1.35rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-
-.hero__tile p {
-  margin: 4px 0 0;
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
-/* ---------- Section heading ---------- */
-.section-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px 32px;
-  margin-bottom: 32px;
-}
-
-.section-head__note {
-  max-width: 34ch;
   margin: 0;
+  font-family: var(--sk-font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-/* ---------- Category bento ---------- */
-.cat-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(2, 1fr);
+.hero__visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 24px 28px;
 }
 
-@media (min-width: 960px) {
-  .cat-grid {
-    gap: 16px;
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 180px;
+@media (min-width: 900px) {
+  .hero__visual {
+    padding: 28px 40px 32px;
   }
 }
 
-.cat {
-  text-align: left;
-  border-radius: var(--sk-r-lg);
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 24px;
-  min-height: 150px;
-  border: 1px solid transparent;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+/* Stage: everything behind and under the product */
+.hero__stage {
+  position: relative;
+  width: min(100%, 440px);
+  aspect-ratio: 1 / 0.86;
+  display: grid;
+  place-items: center;
 }
 
-.cat:hover {
-  transform: translateY(-3px);
+/* Soft white light behind the product */
+.hero__glow {
+  position: absolute;
+  inset: 4% 8% 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 68%);
+}
+
+/* Two thin rings, like ripples around the product */
+.hero__ring {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.hero__ring--outer {
+  width: 98%;
+  border: 2px dashed rgba(255, 255, 255, 0.55);
+}
+
+.hero__ring--inner {
+  width: 72%;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Podium: a peach top with a deeper orange side */
+.hero__podium {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: 66%;
+  height: 15%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #fff3e8 0%, var(--sk-primary-soft) 100%);
+  box-shadow:
+    0 14px 0 #e8590f,
+    0 30px 36px -10px rgba(27, 27, 27, 0.35);
+}
+
+/* The product stands on the podium; its photo has no background,
+   so it sits straight on the orange with a soft shadow */
+.hero__img {
+  position: relative;
+  z-index: 1;
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  object-position: center bottom;
+  align-self: start;
+  margin-top: 5%;
+  filter: drop-shadow(0 18px 18px rgba(27, 27, 27, 0.28));
+}
+
+.hero__icon {
+  position: relative;
+  z-index: 1;
+  color: var(--sk-secondary);
+  margin-bottom: 14%;
+}
+
+.hero__card {
+  position: relative;
+  z-index: 2;
+  margin-top: 18px;
+  width: min(100%, 340px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px 12px 18px;
+  border-radius: var(--sk-r-lg);
+  background: var(--sk-white);
   box-shadow: var(--sk-shadow-md);
 }
 
-.cat--xl {
-  grid-column: span 2;
-}
-
-.cat--wide {
-  grid-column: span 2;
-}
-
-@media (min-width: 960px) {
-  .cat--xl {
-    grid-row: span 2;
-    padding: 28px;
-  }
-}
-
-.cat--white {
-  background: var(--sk-white);
-  border-color: var(--sk-line);
-}
-.cat--mist {
-  background: var(--sk-mist-deep);
-  border-color: var(--sk-line-strong);
-}
-.cat--sky {
-  background: var(--sk-sky);
-  color: var(--sk-teal);
-}
-.cat--meadow {
-  background: var(--sk-meadow);
-  color: var(--sk-teal);
-}
-.cat--teal {
-  background: var(--sk-teal);
-  color: var(--sk-on-teal);
-}
-
-.cat.is-selected {
-  outline: 2px solid var(--sk-teal);
-  outline-offset: 3px;
-}
-
-.cat__top,
-.cat__bottom {
+.hero__card-info {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.cat__bottom {
-  align-items: flex-end;
-}
-
-.cat__icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  background: var(--sk-mist);
-  color: var(--sk-teal);
-}
-
-.cat--xl .cat__icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
-  background: var(--sk-white);
-}
-
-.cat--meadow .cat__icon,
-.cat--sky .cat__icon {
-  background: var(--sk-white);
-}
-
-.cat--teal .cat__icon {
-  background: var(--sk-teal-deep);
-  color: var(--sk-meadow);
-}
-
-.cat__count {
+.hero__card-label {
   font-size: 12px;
-  font-weight: 700;
-  opacity: 0.8;
+  color: var(--sk-ink-3);
 }
 
-.cat__name {
-  display: block;
+.hero__card-name {
   font-family: var(--sk-font-display);
-  font-size: 1.3rem;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  line-height: 1.1;
+  font-weight: 600;
+  font-size: 0.98rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.cat--xl .cat__name {
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
-}
-
-.cat__blurb {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.85rem;
-  opacity: 0.8;
-}
-
-.cat__arrow {
-  transition: transform 0.2s ease;
-}
-
-.cat:hover .cat__arrow {
-  transform: translate(2px, -2px);
-}
-
-/* ---------- Shop ---------- */
-.shop {
-  background: var(--sk-white);
-  border-top: 1px solid var(--sk-line);
-  border-bottom: 1px solid var(--sk-line);
-}
-
-.toolbar {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 600px) {
-  .toolbar {
-    grid-template-columns: 1fr 240px;
-  }
-}
-
-.toolbar :deep(.v-field) {
-  background: var(--sk-mist);
-}
-
-.chips {
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: none;
-}
-
-.chips::-webkit-scrollbar {
-  display: none;
-}
-
-/* Desktop: chips wrap instead of scrolling */
-@media (min-width: 960px) {
-  .chips {
-    flex-wrap: wrap;
-    overflow: visible;
-  }
-}
-
-.chip {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1px solid var(--sk-line-strong);
-  background: var(--sk-white);
-  color: var(--sk-ink-2);
-  font-size: 0.9rem;
+.hero__card-price {
   font-weight: 700;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.chip:hover {
-  border-color: var(--sk-teal);
-  color: var(--sk-teal);
-}
-
-.chip.is-on {
-  background: var(--sk-teal);
-  border-color: var(--sk-teal);
-  color: var(--sk-white);
-}
-
-.chip__count {
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  font-size: 11px;
-  background: var(--sk-mist-deep);
-  color: var(--sk-ink-2);
-}
-
-.chip.is-on .chip__count {
-  background: var(--sk-meadow);
-  color: var(--sk-teal);
-}
-
-.result-line {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 16px;
-  margin: 24px 0 20px;
   font-size: 0.95rem;
 }
 
+/* ---------- Product grids ---------- */
 .grid {
   display: grid;
   gap: 12px;
@@ -980,10 +861,238 @@ onMounted(() => {
   }
 }
 
+.featured {
+  padding-bottom: 0;
+}
+
+/* ---------- Shop by category ---------- */
+.cats {
+  padding-bottom: 0;
+}
+
+.cats__arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.cats__arrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--sk-line-strong) !important;
+  display: grid;
+  place-items: center;
+  color: var(--sk-ink);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.cats__arrow:hover {
+  background: var(--sk-primary);
+  border-color: var(--sk-primary) !important;
+}
+
+.cats__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(240px, 1fr);
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+@media (min-width: 960px) {
+  .cats__track {
+    grid-auto-columns: calc((100% - 32px) / 3);
+    gap: 16px;
+  }
+}
+
+.cats__track::-webkit-scrollbar {
+  display: none;
+}
+
+.cat {
+  scroll-snap-align: start;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 330px;
+  border-radius: var(--sk-r-lg);
+  background: var(--sk-well);
+  overflow: hidden;
+  border: 2px solid transparent !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.cat:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sk-shadow-md);
+}
+
+.cat.is-selected {
+  border-color: var(--sk-primary) !important;
+}
+
+.cat__text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 22px 22px 0;
+}
+
+.cat__name {
+  font-family: var(--sk-font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--sk-ink);
+}
+
+.cat__blurb {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--sk-ink-3);
+}
+
+.cat__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sk-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--sk-primary);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.cat__media {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 210px;
+  padding: 16px 22px 24px;
+}
+
+.cat__img {
+  width: 72%;
+  height: 170px;
+  object-fit: contain;
+  object-position: center;
+  mix-blend-mode: multiply;
+  transition: transform 0.35s ease, opacity 0.25s ease;
+}
+
+.cat:hover .cat__img {
+  transform: scale(1.05);
+}
+
+.cat__icon {
+  color: var(--sk-ink-3);
+}
+
+/* ---------- All products ---------- */
+.toolbar {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 600px) {
+  .toolbar {
+    grid-template-columns: 1fr 240px;
+  }
+}
+
+.toolbar :deep(.v-field) {
+  background: var(--sk-tint);
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .chips {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+}
+
+.chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--sk-line-strong) !important;
+  background: var(--sk-white);
+  color: var(--sk-ink-2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--sk-secondary) !important;
+  color: var(--sk-ink);
+}
+
+.chip.is-on {
+  background: var(--sk-primary);
+  border-color: var(--sk-primary) !important;
+  color: var(--sk-on-primary);
+  font-weight: 600;
+}
+
+.chip__count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--sk-well);
+  color: var(--sk-ink-2);
+}
+
+.chip.is-on .chip__count {
+  background: var(--sk-white);
+  color: var(--sk-ink);
+}
+
+.result-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 22px 0 18px;
+  font-size: 0.95rem;
+}
+
 .state {
   text-align: center;
   padding: 56px 24px;
-  background: var(--sk-mist);
+  border-radius: var(--sk-r-lg);
+  background: var(--sk-tint);
 }
 
 .state p {
@@ -993,27 +1102,24 @@ onMounted(() => {
 }
 
 .skeleton {
-  border: 1px solid var(--sk-line);
   border-radius: var(--sk-r-lg);
+  background: var(--sk-tint);
   padding-bottom: 18px;
   overflow: hidden;
 }
 
 .skeleton__img {
-  aspect-ratio: 1 / 1;
-  background: var(--sk-mist-deep);
+  aspect-ratio: 1 / 0.86;
+  background: var(--sk-well);
   margin-bottom: 16px;
+  animation: pulse 1.4s ease-in-out infinite;
 }
 
 .skeleton__line {
   height: 12px;
   border-radius: 6px;
-  background: var(--sk-mist-deep);
+  background: var(--sk-well);
   margin: 10px 18px 0;
-  animation: pulse 1.4s ease-in-out infinite;
-}
-
-.skeleton__img {
   animation: pulse 1.4s ease-in-out infinite;
 }
 
@@ -1023,206 +1129,189 @@ onMounted(() => {
   }
 }
 
-/* ---------- Promotions ---------- */
-.promo-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: 1fr;
+/* ---------- Experience panel ---------- */
+.experience-wrap {
+  padding-top: 24px;
 }
 
-@media (min-width: 960px) {
-  .promo-grid {
-    gap: 20px;
-    grid-template-columns: 7fr 5fr;
-  }
-}
-
-.promo {
-  position: relative;
-  border-radius: var(--sk-r-xl);
-  overflow: hidden;
-}
-
-.promo--main {
-  display: grid;
-  grid-template-columns: 1fr;
-  min-height: 420px;
-}
-
-@media (min-width: 700px) {
-  .promo--main {
-    grid-template-columns: 1.1fr 1fr;
-  }
-}
-
-.promo__copy {
-  padding: 36px;
+.experience {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
-  gap: 16px;
-  position: relative;
-  z-index: 1;
+  align-items: center;
+  text-align: center;
+  gap: 32px;
+  padding: 48px 24px;
+  border-radius: var(--sk-r-xl);
+  background: var(--sk-primary-soft);
 }
 
-.promo__copy p,
-.promo--side p {
-  max-width: 34ch;
-  line-height: 1.55;
-  margin: 0 0 8px;
+.experience__grid {
+  display: grid;
+  gap: 28px;
+  width: 100%;
+  max-width: 920px;
+  grid-template-columns: 1fr;
 }
 
-.promo--main .promo__copy p {
-  color: var(--sk-on-teal-2);
+@media (min-width: 760px) {
+  .experience__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.promo__kicker {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.service {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-.promo--main .promo__kicker {
-  color: var(--sk-meadow);
+.service__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--sk-white);
+  color: var(--sk-ink);
 }
 
-.promo__title {
+.service__title {
   font-family: var(--sk-font-display);
-  font-weight: 500;
-  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
-  line-height: 1;
-  letter-spacing: -0.03em;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 4px 0 0;
+}
+
+.service p {
+  margin: 0;
+  max-width: 30ch;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--sk-ink-2);
+}
+
+/* ---------- Why ShopKart ---------- */
+.why__title {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.why__grid {
+  display: grid;
+  gap: 32px;
+  align-items: center;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .why__grid {
+    grid-template-columns: 1fr 1.1fr 1fr;
+  }
+}
+
+.why__col {
+  display: grid;
+  gap: 40px;
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  .why__col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.reason__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sk-font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
   margin: 0;
 }
 
-.promo__title em {
-  font-style: italic;
-  font-weight: 400;
+.reason__mark {
+  color: var(--sk-primary);
 }
 
-.promo--main .promo__title em {
-  color: var(--sk-meadow);
+.reason p {
+  margin: 8px 0 0 28px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--sk-ink-3);
+  max-width: 34ch;
 }
 
-.promo__title--sm {
-  font-size: clamp(2rem, 3.4vw, 2.8rem);
-}
-
-.promo__visual {
+.why__visual {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 260px;
+  min-height: 300px;
+  order: -1;
 }
 
-.promo__disc {
+@media (min-width: 900px) {
+  .why__visual {
+    order: 0;
+    min-height: 360px;
+  }
+}
+
+.why__disc {
   position: absolute;
-  width: 78%;
+  width: min(86%, 340px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--sk-teal-deep);
+  background: var(--sk-well);
 }
 
-.promo__img {
+.why__img {
   position: relative;
-  width: 80%;
-  max-height: 340px;
+  width: min(58%, 240px);
+  aspect-ratio: 1;
+  height: auto;
   object-fit: contain;
+  mix-blend-mode: multiply;
 }
 
-.promo__icon {
+.why__icon {
   position: relative;
-  color: var(--sk-sky);
-}
-
-/* Side tile: visual on top, copy anchored at the bottom */
-.promo--side {
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* The visual takes all the space above the copy; the photo fills it
-   without ever making the tile taller than the audio tile beside it. */
-.side__visual {
-  position: relative;
-  flex: 1;
-  display: grid;
-  place-items: center;
-  min-height: 220px;
-}
-
-.side__img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  /* Line the photo up with the left edge of the copy, resting just above it */
-  object-position: left bottom;
-}
-
-.side__icon {
-  color: var(--sk-teal);
-}
-
-.side__copy {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.promo--side .promo__title--sm {
-  font-size: clamp(1.9rem, 2.6vw, 2.4rem);
-}
-
-/* Narrow-but-not-phone widths: copy beside the visual */
-@media (min-width: 600px) and (max-width: 959px) {
-  .promo--side {
-    flex-direction: row-reverse;
-    align-items: center;
-  }
-
-  .side__visual {
-    flex: 0 0 40%;
-    align-self: stretch;
-  }
+  color: var(--sk-ink-3);
 }
 
 /* ---------- Newsletter ---------- */
+.newsletter-wrap {
+  padding-bottom: 72px;
+}
+
 .newsletter {
-  padding: 80px 0;
-}
-
-.newsletter__inner {
   display: grid;
-  gap: 40px;
-  align-items: end;
+  gap: 28px;
+  align-items: center;
+  padding: 40px 24px;
+  border-radius: var(--sk-r-xl);
+  background: var(--sk-secondary);
+  color: var(--sk-on-secondary);
 }
 
-@media (min-width: 960px) {
-  .newsletter__inner {
-    grid-template-columns: 1.1fr 1fr;
+@media (min-width: 900px) {
+  .newsletter {
+    grid-template-columns: 1fr 1.1fr;
+    padding: 48px 56px;
   }
 }
 
-.newsletter .sk-eyebrow {
-  color: var(--sk-teal);
-}
-
 .newsletter__lede {
-  margin: 20px 0 0;
+  margin: 10px 0 0;
   max-width: 42ch;
   line-height: 1.6;
+  color: var(--sk-on-secondary-2);
 }
 
 .newsletter__label {
   display: block;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 0.9rem;
   margin-bottom: 8px;
 }
@@ -1238,6 +1327,10 @@ onMounted(() => {
   flex: 1 1 240px;
 }
 
+.newsletter__field :deep(.v-messages__message) {
+  color: #fca5a5;
+}
+
 .newsletter__row .v-btn {
   height: 52px !important;
 }
@@ -1249,6 +1342,7 @@ onMounted(() => {
   padding: 20px 22px;
   border-radius: var(--sk-r-lg);
   background: var(--sk-white);
+  color: var(--sk-ink);
   line-height: 1.5;
 }
 </style>

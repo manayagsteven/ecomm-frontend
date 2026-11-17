@@ -25,7 +25,7 @@ export function useCatalog() {
       cart.syncWithProducts(products.value)
     } catch (err) {
       console.error('Error fetching products:', err)
-      error.value = 'We could not reach the store right now. Check that Strapi is running and try again.'
+      error.value = 'The store server is not responding. Make sure Strapi is running, then reload.'
     } finally {
       loading.value = false
     }

@@ -6,16 +6,16 @@
     ========================================= -->
     <header class="head">
       <div>
-        <span class="sk-eyebrow">Store admin</span>
+        <span class="sk-eyebrow">Back office</span>
         <h1 class="sk-h1 mt-3">Product <em>management</em></h1>
-        <p class="sk-muted mt-3 mb-0">Create, update and track everything in the ShopKart catalog.</p>
+        <p class="sk-muted mt-3 mb-0">Add new listings, edit details, and keep an eye on stock levels.</p>
       </div>
       <div class="d-flex flex-wrap ga-3">
         <v-btn to="/" variant="outlined" color="primary" size="large" prepend-icon="mdi-storefront-outline" class="head__ghost">
-          View storefront
+          Open the store
         </v-btn>
         <v-btn color="primary" size="large" prepend-icon="mdi-plus" @click="openCreateDialog">
-          Add Product
+          Add New Product
         </v-btn>
       </div>
     </header>
@@ -25,19 +25,19 @@
     ========================================= -->
     <section class="stats" aria-label="Inventory overview">
       <div class="stat stat--white">
-        <span class="stat__label">Total products</span>
+        <span class="stat__label">Listings</span>
         <span class="stat__value sk-num">{{ products.length }}</span>
-        <span class="stat__foot">{{ categoriesUsed }} categories</span>
+        <span class="stat__foot">{{ categoriesUsed }} departments</span>
       </div>
-      <div class="stat stat--meadow">
-        <span class="stat__label">Active</span>
+      <div class="stat stat--peach">
+        <span class="stat__label">Live in store</span>
         <span class="stat__value sk-num">{{ activeCount }}</span>
-        <span class="stat__foot">{{ products.length - activeCount }} inactive</span>
+        <span class="stat__foot">{{ products.length - activeCount }} hidden</span>
       </div>
-      <div class="stat stat--sky">
-        <span class="stat__label">Needs restock</span>
+      <div class="stat stat--well">
+        <span class="stat__label">Restock soon</span>
         <span class="stat__value sk-num">{{ lowStockCount + outOfStockCount }}</span>
-        <span class="stat__foot">{{ outOfStockCount }} out · {{ lowStockCount }} low</span>
+        <span class="stat__foot">{{ outOfStockCount }} sold out · {{ lowStockCount }} running low</span>
       </div>
     </section>
 
@@ -47,13 +47,13 @@
     <div class="toolbar">
       <v-text-field
         v-model="search"
-        placeholder="Search by name, description or category"
+        placeholder="Find a product by name, keyword or department"
         prepend-inner-icon="mdi-magnify"
         clearable
         hide-details
         bg-color="white"
         class="toolbar__search"
-        aria-label="Search product"
+        aria-label="Find a product"
       />
       <div class="segments" role="group" aria-label="Filter by status">
         <button
@@ -75,14 +75,14 @@
     ========================================= -->
     <div v-if="loading" class="state sk-surface">
       <v-progress-circular indeterminate color="primary" size="44" />
-      <div class="mt-4 sk-muted">Loading products...</div>
+      <div class="mt-4 sk-muted">Fetching your catalog…</div>
     </div>
 
     <div v-else-if="filteredProducts.length === 0" class="state sk-surface">
       <v-icon icon="mdi-package-variant" size="48" class="sk-subtle" />
-      <h2 class="sk-h3 mt-4">No products found</h2>
-      <p class="sk-muted mt-2">Add your first product or try another search.</p>
-      <v-btn color="primary" class="mt-4" prepend-icon="mdi-plus" @click="openCreateDialog">Add Product</v-btn>
+      <h2 class="sk-h3 mt-4">No listings match</h2>
+      <p class="sk-muted mt-2">Try a different keyword, or create a new listing.</p>
+      <v-btn color="primary" class="mt-4" prepend-icon="mdi-plus" @click="openCreateDialog">Add New Product</v-btn>
     </div>
 
     <!-- ========================================
@@ -93,11 +93,11 @@
         <thead>
           <tr>
             <th>Product</th>
-            <th>Category</th>
+            <th>Department</th>
             <th class="text-right">Price</th>
             <th>Stock</th>
             <th>Status</th>
-            <th class="text-right">Actions</th>
+            <th class="text-right">Manage</th>
           </tr>
         </thead>
 
@@ -106,18 +106,18 @@
             <td>
               <div class="cell-product">
                 <div class="thumb sk-image-well">
-                  <img v-if="product.image" :src="getImageUrl(product.image)" :alt="product.name">
+                  <ProductImage v-if="product.image" :src="getImageUrl(product.image)" :alt="product.name" />
                   <v-icon v-else icon="mdi-image-off-outline" size="22" class="sk-subtle" />
                 </div>
                 <div class="cell-product__text">
                   <div class="cell-product__name">{{ product.name }}</div>
-                  <div class="description-text sk-subtle">{{ product.description || 'No description' }}</div>
+                  <div class="description-text sk-subtle">{{ product.description || 'No details yet' }}</div>
                 </div>
               </div>
             </td>
 
             <td>
-              <span class="sk-pill sk-pill--sky">
+              <span class="sk-pill sk-pill--peach">
                 <v-icon :icon="getCategoryIcon(product.category)" size="14" />
                 {{ product.category || 'Uncategorized' }}
               </span>
@@ -127,13 +127,13 @@
 
             <td>
               <span class="sk-pill sk-num" :class="`sk-pill--${getStockColor(product.stock)}`">
-                {{ product.stock }} {{ Number(product.stock) === 1 ? 'unit' : 'units' }}
+                {{ product.stock }} pcs
               </span>
             </td>
 
             <td>
               <span class="sk-pill" :class="product.is_active ? 'sk-pill--success' : 'sk-pill--neutral'">
-                {{ product.is_active ? 'Active' : 'Inactive' }}
+                {{ product.is_active ? 'Live' : 'Hidden' }}
               </span>
             </td>
 
@@ -148,7 +148,7 @@
         </tbody>
       </v-table>
       <div class="table-foot sk-subtle sk-num">
-        Showing {{ filteredProducts.length }} of {{ products.length }} products
+        {{ filteredProducts.length }} of {{ products.length }} listings shown
       </div>
     </div>
 
@@ -159,8 +159,8 @@
       <v-card class="sk-dialog">
         <div class="dlg-head">
           <div>
-            <span class="sk-eyebrow">{{ isEditing ? 'Edit' : 'New product' }}</span>
-            <h2 class="sk-h3 mt-2">{{ isEditing ? form.name || 'Edit Product' : 'Add Product' }}</h2>
+            <span class="sk-eyebrow">{{ isEditing ? 'Editing' : 'New listing' }}</span>
+            <h2 class="sk-h3 mt-2">{{ isEditing ? form.name || 'Edit listing' : 'Create a listing' }}</h2>
           </div>
           <v-btn icon="mdi-close" variant="text" aria-label="Close" @click="closeProductDialog" />
         </div>
@@ -169,7 +169,7 @@
           <v-form ref="productForm" @submit.prevent="saveProduct">
             <!-- Image -->
             <div class="form-group">
-              <div class="form-group__title">Image</div>
+              <div class="form-group__title">Photo</div>
               <div class="image-row">
                 <div class="image-preview sk-image-well">
                   <img v-if="imagePreview || currentImage" :src="imagePreview || getImageUrl(currentImage)" alt="Product image preview">
@@ -177,11 +177,11 @@
                 </div>
                 <v-file-input
                   v-model="selectedFile"
-                  label="Select Product Image"
+                  label="Upload a photo"
                   accept="image/*"
                   prepend-icon=""
                   prepend-inner-icon="mdi-paperclip"
-                  :hint="isEditing && currentImage ? 'Choose a file to replace the current image' : 'PNG or JPG'"
+                  :hint="isEditing && currentImage ? 'Pick a new file to swap the current photo' : 'PNG or JPG works best'"
                   persistent-hint
                   class="flex-grow-1"
                   @update:model-value="handleImageChange"
@@ -191,19 +191,19 @@
 
             <!-- Details -->
             <div class="form-group">
-              <div class="form-group__title">Details</div>
+              <div class="form-group__title">Basic info</div>
               <v-text-field
                 v-model="form.name"
-                label="Product Name"
-                :rules="[(value) => !!value || 'Product name is required']"
+                label="Name"
+                :rules="[(value) => !!value || 'Give this product a name']"
               />
               <v-textarea v-model="form.description" label="Description" rows="3" auto-grow />
-              <v-select v-model="form.category" :items="categories" label="Category" />
+              <v-select v-model="form.category" :items="categories" label="Department" />
             </div>
 
             <!-- Pricing & inventory -->
             <div class="form-group">
-              <div class="form-group__title">Pricing &amp; inventory</div>
+              <div class="form-group__title">Price and stock</div>
               <v-row density="compact">
                 <v-col cols="12" sm="6">
                   <v-text-field
@@ -219,26 +219,26 @@
                     v-model.number="form.stock"
                     label="Stock"
                     type="number"
-                    suffix="units"
+                    suffix="pcs"
                     :rules="stockRules"
                   />
                 </v-col>
               </v-row>
               <div class="switch-row">
                 <div>
-                  <div class="font-weight-bold">Active product</div>
-                  <div class="sk-subtle text-body-small">Inactive products are hidden from the storefront.</div>
+                  <div class="font-weight-bold">Show in store</div>
+                  <div class="sk-subtle text-body-small">Turn this off to hide the product from shoppers.</div>
                 </div>
-                <v-switch v-model="form.is_active" color="primary" inset hide-details aria-label="Active product" />
+                <v-switch v-model="form.is_active" color="primary" inset hide-details aria-label="Show in store" />
               </div>
             </div>
           </v-form>
         </v-card-text>
 
         <div class="dlg-foot">
-          <v-btn variant="outlined" @click="closeProductDialog">Cancel</v-btn>
+          <v-btn variant="outlined" @click="closeProductDialog">Discard</v-btn>
           <v-btn color="primary" :loading="saving" @click="saveProduct">
-            {{ isEditing ? 'Update Product' : 'Save Product' }}
+            {{ isEditing ? 'Save Changes' : 'Publish Product' }}
           </v-btn>
         </div>
       </v-card>
@@ -250,18 +250,18 @@
     <v-dialog v-model="viewDialog" max-width="760">
       <v-card v-if="selectedProduct" class="sk-dialog view">
         <div class="view__media sk-image-well">
-          <img v-if="selectedProduct.image" :src="getImageUrl(selectedProduct.image)" :alt="selectedProduct.name">
+          <ProductImage v-if="selectedProduct.image" :src="getImageUrl(selectedProduct.image)" :alt="selectedProduct.name" />
           <v-icon v-else icon="mdi-image-off-outline" size="72" class="sk-subtle" />
         </div>
 
         <div class="view__body">
           <div class="d-flex align-center justify-space-between ga-2">
-            <span class="sk-pill sk-pill--sky">{{ selectedProduct.category || 'Uncategorized' }}</span>
+            <span class="sk-pill sk-pill--peach">{{ selectedProduct.category || 'Uncategorized' }}</span>
             <v-btn icon="mdi-close" variant="text" size="small" aria-label="Close" @click="viewDialog = false" />
           </div>
 
           <h2 class="sk-h2 mt-4">{{ selectedProduct.name }}</h2>
-          <p class="sk-muted mt-3">{{ selectedProduct.description || 'No product description.' }}</p>
+          <p class="sk-muted mt-3">{{ selectedProduct.description || 'No description added yet.' }}</p>
 
           <dl class="view__facts">
             <div>
@@ -270,13 +270,13 @@
             </div>
             <div>
               <dt>Stock</dt>
-              <dd class="sk-num">{{ selectedProduct.stock }} units</dd>
+              <dd class="sk-num">{{ selectedProduct.stock }} pcs</dd>
             </div>
             <div>
               <dt>Status</dt>
               <dd>
                 <span class="sk-pill" :class="selectedProduct.is_active ? 'sk-pill--success' : 'sk-pill--neutral'">
-                  {{ selectedProduct.is_active ? 'Active' : 'Inactive' }}
+                  {{ selectedProduct.is_active ? 'Live' : 'Hidden' }}
                 </span>
               </dd>
             </div>
@@ -284,7 +284,7 @@
 
           <div class="d-flex ga-2 mt-6">
             <v-btn color="primary" prepend-icon="mdi-pencil-outline" @click="editFromView">Edit</v-btn>
-            <v-btn variant="outlined" @click="viewDialog = false">Close</v-btn>
+            <v-btn variant="outlined" @click="viewDialog = false">Done</v-btn>
           </div>
         </div>
       </v-card>
@@ -297,18 +297,18 @@
       <v-card class="sk-dialog">
         <v-card-text class="pa-7">
           <div class="del-icon"><v-icon icon="mdi-trash-can-outline" size="26" /></div>
-          <h2 class="sk-h3 mt-5">Delete product?</h2>
+          <h2 class="sk-h3 mt-5">Remove this listing?</h2>
           <p class="sk-muted mt-3 mb-0">
-            <strong class="text-high-emphasis">{{ selectedProduct?.name }}</strong> will be permanently removed
-            from Strapi. This can't be undone.
+            <strong class="text-high-emphasis">{{ selectedProduct?.name }}</strong> will be deleted from the
+            catalog for good. There's no way to bring it back.
           </p>
         </v-card-text>
 
         <v-card-actions class="px-7 pb-7 pt-0 ga-2">
           <!-- flex-grow-1 (not block) so both buttons share the row in Vuetify 4 -->
-          <v-btn variant="outlined" class="flex-grow-1" @click="deleteDialog = false">Cancel</v-btn>
+          <v-btn variant="outlined" class="flex-grow-1" @click="deleteDialog = false">Keep it</v-btn>
           <v-btn color="error" variant="flat" class="flex-grow-1" :loading="deleting" @click="deleteProduct">
-            Delete
+            Yes, remove
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -324,7 +324,7 @@
    Uses the shared default layout (header + footer).
 ========================================= */
 useHead({
-  title: 'Product Management | ShopKart',
+  title: 'Product Management · ShopKart Admin',
 })
 
 const config = useRuntimeConfig()
@@ -370,21 +370,21 @@ const currentImage = ref(null)
 const categories = CATEGORY_NAMES
 
 const priceRules = [
-  (value) => (value !== '' && value !== null) || 'Price is required',
-  (value) => value >= 0 || 'Price cannot be negative',
+  (value) => (value !== '' && value !== null) || 'Enter a price',
+  (value) => value >= 0 || 'Price must be zero or more',
 ]
 
 const stockRules = [
-  (value) => (value !== '' && value !== null) || 'Stock is required',
-  (value) => value >= 0 || 'Stock cannot be negative',
-  (value) => Number.isInteger(Number(value)) || 'Stock must be a whole number',
+  (value) => (value !== '' && value !== null) || 'Enter how many pieces you have',
+  (value) => value >= 0 || 'Stock can\'t go below zero',
+  (value) => Number.isInteger(Number(value)) || 'Use whole numbers for stock',
 ]
 
 const statusOptions = [
   { label: 'All', value: 'all' },
-  { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
-  { label: 'Low stock', value: 'low' },
+  { label: 'Live', value: 'active' },
+  { label: 'Hidden', value: 'inactive' },
+  { label: 'Running low', value: 'low' },
 ]
 
 /* ========================================
@@ -436,7 +436,7 @@ async function getProducts() {
     products.value = response.data || []
   } catch (error) {
     console.error('Error fetching products:', error)
-    showSnackbar('Unable to load products.', 'error')
+    showSnackbar('Couldn\'t load the catalog.', 'error')
   } finally {
     loading.value = false
   }
@@ -532,7 +532,7 @@ async function createProduct() {
     await uploadProductImage(response.data.id)
   }
 
-  showSnackbar('Product created successfully.', 'success')
+  showSnackbar('Listing published.', 'success')
 }
 
 /* ========================================
@@ -562,7 +562,7 @@ async function updateProduct() {
     await uploadProductImage(response.data.id)
   }
 
-  showSnackbar('Product updated successfully.', 'success')
+  showSnackbar('Changes saved.', 'success')
 }
 
 /* ========================================
@@ -580,7 +580,7 @@ async function deleteProduct() {
     )
 
     deleteDialog.value = false
-    showSnackbar('Product deleted successfully.', 'success')
+    showSnackbar('Listing removed.', 'success')
     await getProducts()
   } catch (error) {
     showSnackbar(getErrorMessage(error), 'error')
@@ -739,13 +739,13 @@ onMounted(() => {
   background: var(--sk-white);
   border: 1px solid var(--sk-line);
 }
-.stat--meadow {
-  background: var(--sk-meadow);
-  color: var(--sk-teal);
+.stat--peach {
+  background: var(--sk-primary-soft);
+  color: var(--sk-secondary);
 }
-.stat--sky {
-  background: var(--sk-sky);
-  color: var(--sk-teal);
+.stat--well {
+  background: var(--sk-well);
+  color: var(--sk-secondary);
 }
 .stat__label {
   font-size: 12px;
@@ -771,7 +771,7 @@ onMounted(() => {
 
 /* Phones: two tiles per row, the third spans the full width */
 @media (max-width: 599px) {
-  .stat--sky {
+  .stat--well {
     grid-column: span 2;
   }
 }
@@ -793,7 +793,7 @@ onMounted(() => {
   display: inline-flex;
   padding: 4px;
   border-radius: var(--sk-r-md);
-  background: var(--sk-mist-deep);
+  background: var(--sk-well);
   border: 1px solid var(--sk-line);
   overflow-x: auto;
   max-width: 100%;
@@ -815,7 +815,7 @@ onMounted(() => {
 
 .segment.is-on {
   background: var(--sk-white);
-  color: var(--sk-teal);
+  color: var(--sk-secondary);
   box-shadow: var(--sk-shadow-sm);
 }
 
@@ -834,7 +834,7 @@ onMounted(() => {
 }
 
 .table :deep(thead th) {
-  background: var(--sk-mist) !important;
+  background: var(--sk-tint) !important;
   color: var(--sk-ink-3) !important;
   font-size: 12px !important;
   font-weight: 800 !important;
@@ -850,7 +850,7 @@ onMounted(() => {
 }
 
 .table :deep(tbody tr:hover > td) {
-  background: #fbfcf2;
+  background: #FFF8F2;
 }
 
 .cell-product {
@@ -871,6 +871,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  mix-blend-mode: multiply;
   padding: 8%;
 }
 
@@ -891,8 +892,8 @@ onMounted(() => {
 }
 
 .act:hover {
-  color: var(--sk-teal) !important;
-  background: var(--sk-mist-deep);
+  color: var(--sk-secondary) !important;
+  background: var(--sk-well);
 }
 
 .act--danger:hover {
@@ -982,7 +983,7 @@ onMounted(() => {
   padding: 12px 16px;
   margin-bottom: 14px;
   border-radius: var(--sk-r-md);
-  background: var(--sk-mist);
+  background: var(--sk-tint);
 }
 
 .view {
@@ -1005,6 +1006,7 @@ onMounted(() => {
   height: 100%;
   max-height: 420px;
   object-fit: contain;
+  mix-blend-mode: multiply;
   padding: 10%;
 }
 

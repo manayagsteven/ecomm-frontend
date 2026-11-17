@@ -15,7 +15,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--sk-mist);
+  background: var(--sk-white);
 }
 
 .sk-main {

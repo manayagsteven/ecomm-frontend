@@ -2,8 +2,8 @@
 <template>
   <div class="sk-container page">
     <header class="page-head">
-      <span class="sk-eyebrow">Your cart</span>
-      <h1 class="sk-h1 mt-3">Shopping <em>cart</em></h1>
+      <span class="sk-eyebrow">Review</span>
+      <h1 class="sk-h1 mt-3">Ready to <em>check out?</em></h1>
     </header>
 
     <!-- ========================================
@@ -12,12 +12,12 @@
     <div v-if="items.length === 0" class="empty">
       <div class="empty__art"><v-icon icon="mdi-cart-outline" size="56" /></div>
       <div>
-        <h2 class="sk-h2">Nothing in here <em>yet.</em></h2>
-        <p class="sk-lede mt-3">Browse the shop and add a few things you like. Your cart is saved on this device.</p>
+        <h2 class="sk-h2">Your cart is <em>waiting.</em></h2>
+        <p class="sk-lede mt-3">Nothing's been added so far. Anything you pick stays here, even if you close the page.</p>
         <div class="d-flex flex-wrap ga-3 mt-6">
-          <v-btn to="/#shop" color="primary" size="large" append-icon="mdi-arrow-right">Start shopping</v-btn>
+          <v-btn to="/#shop" color="primary" size="large" append-icon="mdi-arrow-right">Explore the shop</v-btn>
           <v-btn v-if="wishlistCount" to="/wishlist" variant="outlined" color="primary" size="large">
-            View wishlist ({{ wishlistCount }})
+            Open saved items ({{ wishlistCount }})
           </v-btn>
         </div>
       </div>
@@ -29,8 +29,8 @@
       ========================================= -->
       <section class="items sk-surface" aria-label="Cart items">
         <div class="items__head">
-          <span class="sk-num"><strong>{{ items.length }}</strong> {{ items.length === 1 ? 'product' : 'products' }}</span>
-          <button type="button" class="sk-link sk-focus clear-btn" @click="clearDialog = true">Clear cart</button>
+          <span class="sk-num"><strong>{{ items.length }}</strong> {{ items.length === 1 ? 'item in your cart' : 'items in your cart' }}</span>
+          <button type="button" class="sk-link sk-focus clear-btn" @click="clearDialog = true">Empty cart</button>
         </div>
 
         <v-alert
@@ -41,23 +41,23 @@
           class="ma-4 mb-0"
           rounded="lg"
         >
-          Some items are no longer available (inactive, deleted or sold out). Remove them to continue to checkout.
+          A few items can't be bought anymore (hidden, deleted or sold out). Take them out to continue.
         </v-alert>
 
         <ul class="lines">
           <li v-for="item in items" :key="item.documentId" class="line" :class="{ 'is-unavailable': !item.available }">
             <div class="line__img sk-image-well">
-              <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name">
+              <ProductImage v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" />
               <v-icon v-else :icon="getCategoryIcon(item.category)" size="32" class="sk-subtle" />
             </div>
 
             <div class="line__info">
               <span class="line__cat">{{ item.category }}</span>
               <h2 class="line__name">{{ item.name }}</h2>
-              <div class="line__unit sk-muted sk-num">{{ formatPrice(item.price) }} each</div>
-              <span v-if="!item.available" class="sk-pill sk-pill--error mt-2">No longer available</span>
+              <div class="line__unit sk-muted sk-num">{{ formatPrice(item.price) }} per piece</div>
+              <span v-if="!item.available" class="sk-pill sk-pill--error mt-2">Not available</span>
               <span v-else-if="item.quantity >= item.stock" class="sk-pill sk-pill--warning mt-2">
-                Max stock reached ({{ item.stock }})
+                That's all we have ({{ item.stock }})
               </span>
             </div>
 
@@ -79,7 +79,7 @@
                   <v-icon icon="mdi-plus" size="18" />
                 </button>
               </div>
-              <div class="line__stock sk-subtle">{{ item.available ? `${item.stock} in stock` : '' }}</div>
+              <div class="line__stock sk-subtle">{{ item.available ? `${item.stock} left in the store` : '' }}</div>
             </div>
 
             <div class="line__total">
@@ -93,13 +93,13 @@
       </section>
 
       <!-- ========================================
-           ORDER SUMMARY
+           SUMMARY PANEL
       ========================================= -->
-      <aside class="summary" aria-label="Order summary">
-        <h2 class="sk-h3">Order summary</h2>
+      <aside class="summary" aria-label="Summary">
+        <h2 class="sk-h3">Summary</h2>
         <dl class="summary__rows">
           <div>
-            <dt>Total items</dt>
+            <dt>Pieces</dt>
             <dd class="sk-num">{{ totalItems }}</dd>
           </div>
           <div>
@@ -107,30 +107,30 @@
             <dd class="sk-num">{{ formatPrice(totalAmount) }}</dd>
           </div>
           <div>
-            <dt>Delivery</dt>
-            <dd>Free</dd>
+            <dt>Shipping</dt>
+            <dd>On us</dd>
           </div>
         </dl>
         <div class="summary__total">
-          <span>Total amount</span>
+          <span>You pay</span>
           <strong class="sk-num">{{ formatPrice(totalAmount) }}</strong>
         </div>
 
         <v-btn
           to="/checkout"
-          color="secondary"
+          color="primary"
           size="x-large"
           block
           append-icon="mdi-arrow-right"
           :disabled="hasUnavailable || totalItems === 0"
           class="mt-6"
         >
-          Checkout all
+          Proceed to Checkout
         </v-btn>
         <v-btn :loading="refreshing" variant="text" block class="mt-2 summary__ghost" prepend-icon="mdi-refresh" @click="refresh">
-          Refresh stock
+          Recheck stock
         </v-btn>
-        <NuxtLink to="/#shop" class="summary__continue">Continue shopping</NuxtLink>
+        <NuxtLink to="/#shop" class="summary__continue">Keep exploring</NuxtLink>
       </aside>
     </div>
 
@@ -138,12 +138,12 @@
     <v-dialog v-model="clearDialog" max-width="420">
       <v-card class="sk-dialog pa-2">
         <v-card-text class="pa-6">
-          <h2 class="sk-h3">Clear your cart?</h2>
-          <p class="sk-muted mt-3 mb-0">All {{ items.length }} products will be removed. This can't be undone.</p>
+          <h2 class="sk-h3">Empty your cart?</h2>
+          <p class="sk-muted mt-3 mb-0">This takes out all {{ items.length }} items at once. You can't undo it.</p>
         </v-card-text>
         <v-card-actions class="px-6 pb-6 pt-0 ga-2">
-          <v-btn variant="outlined" class="flex-grow-1" @click="clearDialog = false">Keep items</v-btn>
-          <v-btn color="error" variant="flat" class="flex-grow-1" @click="confirmClear">Clear cart</v-btn>
+          <v-btn variant="outlined" class="flex-grow-1" @click="clearDialog = false">Never mind</v-btn>
+          <v-btn color="error" variant="flat" class="flex-grow-1" @click="confirmClear">Yes, empty it</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -152,7 +152,7 @@
 
 <script setup lang="ts">
 // @ts-nocheck
-useHead({ title: 'Cart | ShopKart' })
+useHead({ title: 'Your Cart · ShopKart' })
 
 const { items, totalItems, totalAmount, hasUnavailable, lineSubtotal, updateQuantity, removeItem, clearCart } = useCart()
 const { count: wishlistCount } = useWishlist()
@@ -169,13 +169,13 @@ function changeQty(item, value) {
 
 function remove(item) {
   removeItem(item.documentId)
-  notify(`${item.name} removed from cart.`, 'info')
+  notify(`Took ${item.name} out of your cart.`, 'info')
 }
 
 function confirmClear() {
   clearCart()
   clearDialog.value = false
-  notify('Cart cleared.', 'info')
+  notify('All cleared. Nothing left in your cart.', 'info')
 }
 
 // Re-reads Strapi so prices, stock and availability are current
@@ -216,8 +216,8 @@ onMounted(refresh)
   width: 200px;
   aspect-ratio: 1;
   border-radius: var(--sk-r-xl);
-  background: var(--sk-sky);
-  color: var(--sk-teal);
+  background: var(--sk-well);
+  color: var(--sk-secondary);
   display: grid;
   place-items: center;
 }
@@ -312,6 +312,7 @@ onMounted(refresh)
   width: 100%;
   height: 100%;
   object-fit: contain;
+  mix-blend-mode: multiply;
   padding: 8%;
 }
 
@@ -375,10 +376,10 @@ onMounted(refresh)
   color: var(--sk-error);
 }
 
-/* ---------- Summary (solid teal panel) ---------- */
+/* ---------- Summary (solid charcoal panel) ---------- */
 .summary {
-  background: var(--sk-teal);
-  color: var(--sk-on-teal);
+  background: var(--sk-secondary);
+  color: var(--sk-on-secondary);
   border-radius: var(--sk-r-xl);
   padding: 28px;
 }
@@ -399,18 +400,18 @@ onMounted(refresh)
 .summary__rows > div {
   display: flex;
   justify-content: space-between;
-  color: var(--sk-on-teal-2);
+  color: var(--sk-on-secondary-2);
 }
 
 .summary__rows dd {
-  color: var(--sk-on-teal);
+  color: var(--sk-on-secondary);
   font-weight: 700;
 }
 
 .summary__total {
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid #36606e;
+  border-top: 1px solid #4a4a4a;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -421,18 +422,18 @@ onMounted(refresh)
   font-family: var(--sk-font-display);
   font-size: 2rem;
   font-weight: 500;
-  color: var(--sk-meadow);
+  color: var(--sk-primary-soft);
 }
 
 .summary__ghost {
-  color: var(--sk-on-teal) !important;
+  color: var(--sk-on-secondary) !important;
 }
 
 .summary__continue {
   display: block;
   text-align: center;
   margin-top: 12px;
-  color: var(--sk-on-teal-2);
+  color: var(--sk-on-secondary-2);
   font-weight: 600;
   font-size: 0.9rem;
 }

@@ -69,12 +69,12 @@ export function useCart() {
   /* ---------- Add ---------- */
   function addToCart(product: Product, quantity = 1) {
     if (!product.is_active) {
-      return { ok: false, message: `${product.name} is not available right now.` }
+      return { ok: false, message: `${product.name} can't be bought at the moment.` }
     }
 
     const stock = Number(product.stock || 0)
     if (stock <= 0) {
-      return { ok: false, message: `${product.name} is out of stock.` }
+      return { ok: false, message: `Sorry, ${product.name} just sold out.` }
     }
 
     const existing = items.value.find((item) => item.documentId === product.documentId)
@@ -83,7 +83,7 @@ export function useCart() {
     if (currentQty + quantity > stock) {
       return {
         ok: false,
-        message: `Only ${stock} ${product.name} in stock. You already have ${currentQty} in your cart.`,
+        message: `We only have ${stock} of ${product.name}, and ${currentQty} are already in your cart.`,
       }
     }
 
@@ -106,20 +106,20 @@ export function useCart() {
     }
 
     persist()
-    return { ok: true, message: `${product.name} added to cart.` }
+    return { ok: true, message: `${product.name} is now in your cart.` }
   }
 
   /* ---------- Update quantity (clamped between 1 and stock) ---------- */
   function updateQuantity(documentId: string, quantity: number) {
     const item = items.value.find((entry) => entry.documentId === documentId)
-    if (!item) return { ok: false, message: 'Item not found.' }
+    if (!item) return { ok: false, message: 'That item is no longer in your cart.' }
 
     const wanted = Math.floor(Number(quantity) || 1)
 
     if (wanted > item.stock) {
       item.quantity = item.stock
       persist()
-      return { ok: false, message: `Only ${item.stock} available for ${item.name}.` }
+      return { ok: false, message: `We have just ${item.stock} of ${item.name} left.` }
     }
 
     item.quantity = Math.max(1, wanted)

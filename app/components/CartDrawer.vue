@@ -9,17 +9,17 @@
     location="right"
     temporary
     :width="drawerWidth"
-    scrim="#0E2129"
+    scrim="#1B1B1B"
     class="cd"
-    aria-label="Shopping cart"
+    aria-label="Your cart"
   >
     <div class="cd__inner">
       <!-- Header -->
       <header class="cd__head">
         <div>
-          <span class="sk-eyebrow">Your cart</span>
+          <span class="sk-eyebrow">In your cart</span>
           <h2 class="sk-h3 mt-2">
-            {{ totalItems }} {{ totalItems === 1 ? 'item' : 'items' }}
+            {{ totalItems }} {{ totalItems === 1 ? 'piece' : 'pieces' }}
           </h2>
         </div>
         <v-btn icon="mdi-close" variant="text" aria-label="Close cart" @click="closeDrawer" />
@@ -28,10 +28,10 @@
       <!-- Empty state -->
       <div v-if="items.length === 0" class="cd__empty">
         <div class="cd__empty-art"><v-icon icon="mdi-cart-outline" size="44" /></div>
-        <h3 class="sk-h3 mt-5">Your cart is empty</h3>
-        <p class="sk-muted mt-2">Add a few products and they'll show up here.</p>
+        <h3 class="sk-h3 mt-5">Nothing here so far</h3>
+        <p class="sk-muted mt-2">Tap “Add” on any product and it lands right here.</p>
         <v-btn color="primary" class="mt-5" append-icon="mdi-arrow-right" @click="goTo('/#shop')">
-          Start shopping
+          Explore the shop
         </v-btn>
       </div>
 
@@ -44,14 +44,14 @@
           rounded="lg"
           class="mx-5 mt-4"
         >
-          Some items are no longer available. Remove them to check out.
+          A few items can't be bought anymore. Take them out to continue.
         </v-alert>
 
         <!-- Items -->
         <ul class="cd__lines">
           <li v-for="item in items" :key="item.documentId" class="cd__line" :class="{ 'is-unavailable': !item.available }">
             <div class="cd__img sk-image-well">
-              <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name">
+              <ProductImage v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" />
               <v-icon v-else :icon="getCategoryIcon(item.category)" size="26" class="sk-subtle" />
             </div>
 
@@ -88,7 +88,7 @@
               </div>
 
               <div v-if="item.available && item.quantity >= item.stock" class="cd__limit">
-                Max stock reached ({{ item.stock }})
+                That's all we have ({{ item.stock }})
               </div>
             </div>
           </li>
@@ -97,11 +97,11 @@
         <!-- Totals + actions -->
         <footer class="cd__foot">
           <div class="cd__totals">
-            <div><span>Total items</span><strong class="sk-num">{{ totalItems }}</strong></div>
-            <div><span>Delivery</span><strong>Free</strong></div>
+            <div><span>Pieces</span><strong class="sk-num">{{ totalItems }}</strong></div>
+            <div><span>Shipping</span><strong>On us</strong></div>
           </div>
           <div class="cd__total">
-            <span>Total amount</span>
+            <span>You pay</span>
             <strong class="sk-num">{{ formatPrice(totalAmount) }}</strong>
           </div>
           <v-btn
@@ -113,10 +113,10 @@
             class="mt-4"
             @click="goTo('/checkout')"
           >
-            Checkout all
+            Proceed to Checkout
           </v-btn>
           <v-btn variant="outlined" color="primary" block class="mt-2" @click="goTo('/cart')">
-            View full cart
+            Open cart page
           </v-btn>
         </footer>
       </template>
@@ -154,7 +154,7 @@ function changeQty(item, value) {
 
 function remove(item) {
   removeItem(item.documentId)
-  notify(`${item.name} removed from cart.`, 'info')
+  notify(`Took ${item.name} out of your cart.`, 'info')
 }
 
 function goTo(path) {
@@ -206,8 +206,8 @@ function goTo(path) {
   border-radius: var(--sk-r-lg);
   display: grid;
   place-items: center;
-  background: var(--sk-sky);
-  color: var(--sk-teal);
+  background: var(--sk-well);
+  color: var(--sk-secondary);
 }
 
 /* ---------- Lines ---------- */
@@ -245,6 +245,7 @@ function goTo(path) {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  mix-blend-mode: multiply;
   padding: 8%;
 }
 
@@ -338,8 +339,8 @@ function goTo(path) {
   margin-top: 12px;
   padding: 14px 16px;
   border-radius: var(--sk-r-md);
-  background: var(--sk-meadow);
-  color: var(--sk-teal);
+  background: var(--sk-primary-soft);
+  color: var(--sk-secondary);
   display: flex;
   align-items: baseline;
   justify-content: space-between;

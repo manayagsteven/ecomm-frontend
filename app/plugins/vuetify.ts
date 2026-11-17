@@ -4,24 +4,27 @@ import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 
 /* ========================================
-   SHOPKART THEME (Spring Meadow palette)
-   Solid, opaque surfaces only. Depth comes from
-   tonal contrast between these colors.
+   SHOPKART THEME (Orange palette)
+   Orange is the brand / buy color and always carries dark text.
+   Charcoal is used for the footer, dark banners and secondary actions.
 ========================================= */
 const shopkartTheme = {
   dark: false,
   colors: {
-    background: '#F7F9E1', // Morning Mist  - page environment
-    surface: '#FFFFFF', // Pure White    - content surfaces
-    primary: '#204654', // Teal Waters   - primary actions
-    secondary: '#CAFFA6', // Spring Meadow - highlights
-    accent: '#A9E0F1', // Glacial Sky   - feature surfaces
-    'on-secondary': '#204654',
-    'on-accent': '#204654',
-    success: '#2F7A4D',
-    warning: '#A86411',
-    error: '#B4372C',
-    info: '#2C6E82',
+    background: '#FFFFFF',
+    surface: '#FFFFFF',
+    'surface-variant': '#FFE7D0', // promo banners, badges
+    'on-surface-variant': '#1B1B1B',
+    primary: '#FC6E20', // brand, buy buttons
+    'on-primary': '#1B1B1B', // dark text on orange (passes contrast)
+    secondary: '#323232', // header, footer, secondary text
+    'on-secondary': '#FFFFFF',
+    'on-background': '#1B1B1B',
+    'on-surface': '#1B1B1B',
+    error: '#DC2626', // sale prices, errors
+    success: '#16A34A', // in stock, order placed
+    warning: '#F59E0B', // star ratings
+    info: '#323232',
   },
 }
 
@@ -35,13 +38,13 @@ export default defineNuxtPlugin((app) => {
     // Component defaults keep every page visually consistent
     defaults: {
       VBtn: { rounded: 'lg', elevation: 0, class: 'text-none' },
-      VCard: { rounded: 'xl', flat: true },
+      VCard: { rounded: 'lg', flat: true },
       VTextField: { variant: 'outlined', density: 'comfortable', color: 'primary', rounded: 'lg' },
       VTextarea: { variant: 'outlined', density: 'comfortable', color: 'primary', rounded: 'lg' },
       VSelect: { variant: 'outlined', density: 'comfortable', color: 'primary', rounded: 'lg' },
       VFileInput: { variant: 'outlined', density: 'comfortable', color: 'primary', rounded: 'lg' },
       VChip: { rounded: 'lg' },
-      VDialog: { scrim: '#0E2129' },
+      VDialog: { scrim: '#1B1B1B' },
       VSnackbar: { rounded: 'lg' },
     },
   })
