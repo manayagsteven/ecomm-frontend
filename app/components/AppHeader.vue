@@ -85,7 +85,7 @@
               </template>
             </v-list-item>
             <v-divider class="my-1" />
-            <v-list-item to="/products" title="Store Admin" prepend-icon="mdi-view-dashboard-outline" />
+            <v-list-item to="/products" title="Manage Products" prepend-icon="mdi-view-dashboard-outline" />
           </v-list>
         </v-menu>
       </div>

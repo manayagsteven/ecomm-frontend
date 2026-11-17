@@ -103,7 +103,7 @@
 
         <tbody>
           <tr v-for="product in filteredProducts" :key="product.documentId">
-            <td>
+            <td class="td-product">
               <div class="cell-product">
                 <div class="thumb sk-image-well">
                   <ProductImage v-if="product.image" :src="getImageUrl(product.image)" :alt="product.name" />
@@ -116,28 +116,28 @@
               </div>
             </td>
 
-            <td>
+            <td class="td-dept">
               <span class="sk-pill sk-pill--peach">
                 <v-icon :icon="getCategoryIcon(product.category)" size="14" />
                 {{ product.category || 'Uncategorized' }}
               </span>
             </td>
 
-            <td class="text-right font-weight-bold sk-num">{{ formatPrice(product.price) }}</td>
+            <td class="td-price text-right font-weight-bold sk-num">{{ formatPrice(product.price) }}</td>
 
-            <td>
+            <td class="td-stock">
               <span class="sk-pill sk-num" :class="`sk-pill--${getStockColor(product.stock)}`">
                 {{ product.stock }} pcs
               </span>
             </td>
 
-            <td>
+            <td class="td-status">
               <span class="sk-pill" :class="product.is_active ? 'sk-pill--success' : 'sk-pill--neutral'">
                 {{ product.is_active ? 'Live' : 'Hidden' }}
               </span>
             </td>
 
-            <td>
+            <td class="td-manage">
               <div class="d-flex justify-end ga-1">
                 <v-btn icon="mdi-eye-outline" variant="text" size="small" class="act" aria-label="View product" @click="viewProduct(product)" />
                 <v-btn icon="mdi-pencil-outline" variant="text" size="small" class="act" aria-label="Edit product" @click="openEditDialog(product)" />
@@ -532,7 +532,7 @@ async function createProduct() {
     await uploadProductImage(response.data.id)
   }
 
-  showSnackbar('Listing published.', 'success')
+  showSnackbar(form.is_active ? 'Listing published.' : 'Listing saved. It stays hidden until you switch it on.', 'success')
 }
 
 /* ========================================
@@ -857,7 +857,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 14px;
-  min-width: 220px;
+  min-width: 200px;
 }
 
 .thumb {
@@ -880,7 +880,7 @@ onMounted(() => {
 }
 
 .description-text {
-  max-width: 200px;
+  max-width: 170px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -899,6 +899,70 @@ onMounted(() => {
 .act--danger:hover {
   color: var(--sk-error) !important;
   background: #fbe5e1;
+}
+
+/* Phones and tablets: each row becomes a compact card so price, stock
+   and the edit / delete buttons are visible without scrolling sideways.
+     [ photo · name · description              ]
+     [ department                        price ]
+     [ stock  status          view edit delete ] */
+@media (max-width: 959px) {
+  .table :deep(table) {
+    min-width: 0;
+  }
+
+  .table :deep(thead) {
+    display: none;
+  }
+
+  .table :deep(tbody tr) {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+    gap: 10px 8px;
+    padding: 16px;
+    border-bottom: 1px solid var(--sk-line);
+  }
+
+  .table :deep(tbody td) {
+    display: block;
+    height: auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
+  .table :deep(tbody tr:hover > td) {
+    background: transparent;
+  }
+
+  .td-product {
+    grid-column: 1 / -1;
+  }
+
+  .td-dept {
+    grid-column: 1 / 3;
+  }
+
+  .td-price {
+    grid-column: 3;
+    font-size: 1.05rem;
+  }
+
+  .td-manage {
+    grid-column: 3;
+  }
+
+  .cell-product {
+    min-width: 0;
+  }
+
+  .cell-product__text {
+    min-width: 0;
+  }
+
+  .description-text {
+    max-width: 100%;
+  }
 }
 
 .table-foot {

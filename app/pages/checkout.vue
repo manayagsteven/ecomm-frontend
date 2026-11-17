@@ -691,13 +691,15 @@ onMounted(() => {
 /* ---------- Success ---------- */
 .done {
   display: grid;
+  /* minmax(0, …) stops long buttons or addresses from widening the page on phones */
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 }
 
 @media (min-width: 1100px) {
   .done {
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   }
 }
 
@@ -707,6 +709,46 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+
+@media (max-width: 599px) {
+  .done__hero {
+    padding: 28px 22px;
+  }
+
+  .done__receipt {
+    padding: 22px 18px !important;
+  }
+
+  .receipt__ref {
+    font-size: 1.2rem;
+    white-space: nowrap;
+  }
+
+  /* On very narrow screens the date drops under the reference instead of squeezing */
+  .receipt__head {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  .receipt__head > .text-right {
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  /* Stack the two buttons full width and let long labels wrap */
+  .done__hero .v-btn {
+    width: 100%;
+    height: auto !important;
+    min-height: 48px;
+    padding-block: 10px;
+    white-space: normal;
+  }
+
+  .done__hero .v-btn :deep(.v-btn__content) {
+    white-space: normal;
+    text-align: center;
+  }
 }
 
 .done__badge {
@@ -774,8 +816,13 @@ onMounted(() => {
 
 .receipt__meta > div {
   display: grid;
-  grid-template-columns: 110px 1fr;
+  grid-template-columns: 90px minmax(0, 1fr);
   gap: 12px;
+}
+
+.receipt__meta dd {
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .receipt__meta dt {
